@@ -53,7 +53,7 @@ npx playwright test   # prueba de extremo a extremo (sin scroll ni cortes en 136
 ## Publicación (GitHub Pages)
 
 [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) pasa los tests, compila y publica en cada
-push a `main` (y a la rama de trabajo). La primera vez hay que activar
+push a `main`. La primera vez hay que activar
 **Settings → Pages → Source: GitHub Actions**.
 La web queda en `https://angelip2303.github.io/rehab/`; si cambia el nombre del repositorio, actualiza
 `base` en [`astro.config.mjs`](astro.config.mjs).
