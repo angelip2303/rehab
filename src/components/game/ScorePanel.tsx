@@ -46,7 +46,6 @@ export function ScorePanel({ estado, turno }: { estado: Estado; turno: Turno }) 
                   )}
                 >
                   <span className="break-words">
-                    {leToca && "👉 "}
                     {nombrePersona(estado.sesion.personas, m)}
                   </span>
                   <span className="w-14 text-right tabular-nums">{estado.participaciones[m]}</span>

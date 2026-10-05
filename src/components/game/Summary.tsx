@@ -36,7 +36,7 @@ export function Summary({ estado, onOtraRonda, onNuevaSesion }: Props) {
     <main className="mx-auto flex h-dvh max-w-7xl flex-col justify-center overflow-hidden p-6">
       <Card className="max-h-full min-h-0">
         <CardHeader>
-          <CardTitle className="text-3xl">Misión completada 🏆</CardTitle>
+          <CardTitle className="text-3xl">Misión completada</CardTitle>
           <CardDescription className="text-lg">
             El grupo ha resuelto {resueltos} de {total} paneles
           </CardDescription>

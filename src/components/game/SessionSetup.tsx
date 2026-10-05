@@ -306,14 +306,13 @@ export function SessionSetup({ temas, niveles, paneles }: Props) {
 
             <div className="mt-auto flex items-center gap-3 rounded-lg border-2 border-primary/40 bg-primary/10 px-4 py-3">
               <TargetIcon className="size-8 shrink-0 text-primary" />
-              <p className="text-lg">
+              <p className="text-lg" data-testid="mision">
                 {disponibles === 0 ? (
                   "No hay paneles de este nivel en las temáticas elegidas."
                 ) : (
                   <>
                     <strong>Misión:</strong> resolver {totalMision} {totalMision === 1 ? "panel" : "paneles"} entre todo el
-                    grupo, de lo más sencillo a lo más complejo
-                    {modo === "concurso" ? ", mientras cada equipo va sumando sus puntos" : ""}.
+                    grupo{modo === "concurso" ? ", sumando puntos por equipo" : ""}.
                   </>
                 )}
               </p>

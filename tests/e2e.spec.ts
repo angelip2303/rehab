@@ -126,6 +126,12 @@ for (const viewport of [{ width: 1366, height: 768 }, { width: 1280, height: 720
       await expect(page.getByText("Persona 20")).toBeInViewport();
     }
     await page.getByRole("radiogroup", { name: "Paneles de la misión" }).getByRole("radio", { name: "4", exact: true }).click();
+    // En Concurso, el texto de la misión ocupa como mucho dos líneas
+    await page.getByRole("radio", { name: "Concurso" }).click();
+    const lineas = await page.getByTestId("mision").evaluate(
+      (el) => el.getBoundingClientRect().height / parseFloat(getComputedStyle(el).lineHeight),
+    );
+    expect(lineas).toBeLessThanOrEqual(2.1);
     await sinScroll(page);
     await page.screenshot({ path: `test-results/config-${viewport.width}.png` });
     await page.getByRole("button", { name: "¡A jugar!" }).click();

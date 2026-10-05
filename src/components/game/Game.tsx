@@ -188,7 +188,7 @@ function Partida({
           </DialogTrigger>
           <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-5xl">
             <DialogHeader>
-              <DialogTitle className="text-3xl">Marcador 🏆</DialogTitle>
+              <DialogTitle className="text-3xl">Marcador</DialogTitle>
               <DialogDescription className="text-lg">
                 Panel {estado.actual + 1} de {estado.paneles.length} ·{" "}
                 {estado.sesion.modo === "concurso" ? "puntos por equipo y por persona" : "jugadas y aciertos de cada persona"}
@@ -227,7 +227,10 @@ function Partida({
         <CardContent className="text-center">
           <p className="text-4xl font-bold">{panel.panel.pista}</p>
           {panel.ayudaTextoVista && panel.panel.ayuda && (
-            <p className="mt-1 text-2xl text-muted-foreground">💡 {panel.panel.ayuda}</p>
+            <p className="mt-1 flex items-center justify-center gap-2 text-2xl text-muted-foreground">
+              <LightbulbIcon className="size-6 shrink-0" />
+              {panel.panel.ayuda}
+            </p>
           )}
         </CardContent>
       </Card>
@@ -281,10 +284,10 @@ function Partida({
           {terminado ? (
             <span className="flex h-14 items-center text-2xl font-semibold">
               {panel.resultado === "mostrado"
-                ? "Solución 👀"
+                ? "Solución"
                 : resueltoYDestapado
-                  ? "¡Panel resuelto! 🎉"
-                  : "¡Resuelto! Destapad el panel ✨"}
+                  ? "¡Panel resuelto!"
+                  : "¡Resuelto! Destapad el panel"}
             </span>
           ) : (
             <div className={cn("flex h-14 items-center gap-4", espiando && "invisible")}>
