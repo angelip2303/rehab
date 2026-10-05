@@ -30,9 +30,6 @@ paneles:
   - frase: Urogallo cantábrico
     pista: Ave forestal en peligro de extinción
     nivel: moderado
-  - frase: La jirafa tiene el cuello largo
-    pista: Así alcanza las hojas de los árboles
-    nivel: moderado
   - frase: Los pingüinos viven en el Polo Sur
     pista: Ave que no vuela y camina con gracia
     nivel: moderado
