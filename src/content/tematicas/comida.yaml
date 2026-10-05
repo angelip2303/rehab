@@ -1,0 +1,82 @@
+# Temática: Comida
+nombre: Comida
+icono: "🍲"
+paneles:
+  # ---------- FÁCIL ----------
+  - frase: Pan
+    pista: Se compra cada mañana en la panadería
+    nivel: facil
+    fase: 1
+  - frase: Paella
+    pista: Plato de arroz típico de Valencia
+    nivel: facil
+    fase: 1
+    ayuda: Lleva azafrán
+  - frase: Tortilla de patatas
+    pista: Con cebolla o sin cebolla
+    nivel: facil
+    fase: 2
+  - frase: Café con leche
+    pista: Bebida típica del desayuno
+    nivel: facil
+    fase: 2
+  - frase: Gazpacho andaluz
+    pista: Sopa fría de tomate para el verano
+    nivel: facil
+    fase: 3
+  - frase: Churros con chocolate
+    pista: Merienda de invierno en la churrería
+    nivel: facil
+    fase: 3
+
+  # ---------- MODERADO ----------
+  - frase: Cocido madrileño
+    pista: Guiso de garbanzos que se sirve en vuelcos
+    nivel: moderado
+    fase: 1
+  - frase: Pulpo a la gallega
+    pista: Con pimentón, aceite y sal
+    nivel: moderado
+    fase: 1
+  - frase: Las lentejas con chorizo
+    pista: Si quieres las comes y si no las dejas
+    nivel: moderado
+    fase: 2
+  - frase: Jamón serrano y queso manchego
+    pista: Una buena tapa de embutido y lácteo
+    nivel: moderado
+    fase: 2
+  - frase: El roscón de Reyes lleva sorpresa
+    pista: Dulce del seis de enero
+    nivel: moderado
+    fase: 3
+  - frase: Las uvas de Nochevieja
+    pista: Se toman con las campanadas
+    nivel: moderado
+    fase: 3
+
+  # ---------- DIFÍCIL ----------
+  - frase: Con pan y vino se anda el camino
+    pista: Refrán sobre lo esencial
+    nivel: dificil
+    fase: 1
+  - frase: Al pan, pan y al vino, vino
+    pista: Refrán sobre hablar claro
+    nivel: dificil
+    fase: 1
+  - frase: Las migas de pastor con uvas
+    pista: Plato humilde de pan del campo
+    nivel: dificil
+    fase: 2
+  - frase: Contigo, pan y cebolla
+    pista: Lo que se dice por amor, aunque falte de todo
+    nivel: dificil
+    fase: 2
+  - frase: Las cosas claras y el chocolate espeso
+    pista: Refrán sobre la sinceridad
+    nivel: dificil
+    fase: 3
+  - frase: Donde comen dos, comen tres
+    pista: Refrán sobre compartir la mesa
+    nivel: dificil
+    fase: 3

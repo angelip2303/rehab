@@ -1,0 +1,11 @@
+---
+import Base from "@/layouts/Base.astro";
+import { SessionSetup } from "@/components/game/SessionSetup";
+import { cargarContenido } from "@/lib/contenido";
+
+const { temas, niveles, paneles } = await cargarContenido();
+---
+
+<Base title="Panel de palabras · Configuración">
+  <SessionSetup client:only="react" temas={temas} niveles={niveles} paneles={paneles} />
+</Base>

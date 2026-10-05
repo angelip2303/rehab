@@ -1,0 +1,11 @@
+---
+import Base from "@/layouts/Base.astro";
+import { Game } from "@/components/game/Game";
+import { cargarContenido } from "@/lib/contenido";
+
+const { niveles, paneles } = await cargarContenido();
+---
+
+<Base title="Panel de palabras · Juego">
+  <Game client:only="react" niveles={niveles} paneles={paneles} />
+</Base>

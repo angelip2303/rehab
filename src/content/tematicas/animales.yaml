@@ -1,0 +1,87 @@
+# Temática: Animales
+# Cada panel necesita: frase, pista, nivel (facil | moderado | dificil) y fase (1, 2, 3…).
+# "ayuda" es opcional: es una segunda pista que se enseña al pulsar el botón Ayuda.
+nombre: Animales
+icono: "🐾"
+paneles:
+  # ---------- FÁCIL ----------
+  - frase: Ratón
+    pista: Pequeño animal al que le gusta el queso
+    nivel: facil
+    fase: 1
+    ayuda: Le persigue el gato
+  - frase: Perro
+    pista: El mejor amigo del ser humano
+    nivel: facil
+    fase: 1
+    ayuda: Hace guau
+  - frase: Gato negro
+    pista: Dicen que trae mala suerte si se cruza
+    nivel: facil
+    fase: 2
+  - frase: Vaca lechera
+    pista: Animal de granja que nos da leche
+    nivel: facil
+    fase: 2
+    ayuda: Hace muu
+  - frase: El burro de la granja
+    pista: Animal de orejas largas que rebuzna
+    nivel: facil
+    fase: 3
+  - frase: La gallina pone huevos
+    pista: Lo que hace cada día un ave del corral
+    nivel: facil
+    fase: 3
+
+  # ---------- MODERADO ----------
+  - frase: Elefante africano
+    pista: El animal terrestre más grande
+    nivel: moderado
+    fase: 1
+    ayuda: Tiene trompa
+  - frase: Caballo de carreras
+    pista: Corre en el hipódromo
+    nivel: moderado
+    fase: 1
+  - frase: La jirafa tiene el cuello largo
+    pista: Así alcanza las hojas de los árboles
+    nivel: moderado
+    fase: 2
+  - frase: El pingüino vive en el hielo
+    pista: Ave que no vuela y camina con gracia
+    nivel: moderado
+    fase: 2
+  - frase: Las abejas fabrican miel en la colmena
+    pista: Un trabajo dulce en equipo
+    nivel: moderado
+    fase: 3
+  - frase: El camaleón cambia de color
+    pista: Un reptil que se camufla
+    nivel: moderado
+    fase: 3
+
+  # ---------- DIFÍCIL ----------
+  - frase: Perro ladrador, poco mordedor
+    pista: Refrán sobre quien amenaza mucho
+    nivel: dificil
+    fase: 1
+  - frase: A caballo regalado no le mires el diente
+    pista: Refrán sobre los regalos
+    nivel: dificil
+    fase: 1
+  - frase: La tortuga y la liebre hicieron una carrera
+    pista: Fábula sobre la constancia
+    nivel: dificil
+    fase: 2
+  - frase: Cada oveja con su pareja
+    pista: Refrán sobre juntarse con quien se parece
+    nivel: dificil
+    fase: 2
+  - frase: Más vale pájaro en mano que ciento volando
+    pista: Refrán sobre lo seguro
+    nivel: dificil
+    fase: 3
+  - frase: El búho caza ratones por la noche
+    pista: Ave nocturna de grandes ojos
+    nivel: dificil
+    fase: 3

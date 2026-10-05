@@ -1,0 +1,98 @@
+import { describe, expect, it } from "vitest";
+import { crearEstado, elegirPaneles, letraDeAyuda, propuestaCorrecta, reducir } from "../src/lib/game";
+import type { Sesion } from "../src/lib/session";
+import type { Nivel, Panel } from "../src/lib/types";
+
+const facil: Nivel = { id: "facil", nombre: "Fácil", letrasReveladas: "vocales", ayudasPorPanel: 2, fases: [1, 2] };
+const dificil: Nivel = { id: "dificil", nombre: "Difícil", letrasReveladas: "ninguna", ayudasPorPanel: 1, fases: [1] };
+
+const panel = (id: string, frase: string, extra: Partial<Panel> = {}): Panel => ({
+  id, tema: "t", frase, pista: "pista", nivel: "facil", fase: 1, ...extra,
+});
+
+const sesion = (extra: Partial<Sesion> = {}): Sesion => ({
+  nivel: "facil", faseInicial: 1, temas: [], personas: ["Ana", "Luis", "Eva", "Juan"],
+  equipos: 2, modo: "concurso", paneles: 2, jugados: [], ...extra,
+});
+
+describe("partida", () => {
+  it("en fácil empiezan destapadas las vocales", () => {
+    const e = crearEstado(sesion(), [panel("1", "Ratón")], facil);
+    expect(e.panel.visibles.sort()).toEqual(["A", "O"]);
+  });
+
+  it("tocar una letra destapa todas sus apariciones, suma puntos y pasa el turno", () => {
+    let e = crearEstado(sesion(), [panel("1", "Pan con pan")], dificil);
+    e = reducir(e, { tipo: "letra", letra: "P" });
+    expect(e.panel.visibles).toContain("P");
+    expect(e.puntos).toEqual([2, 0]);
+    expect(e.turno).toBe(1);
+    e = reducir(e, { tipo: "letra", letra: "Z" });
+    expect(e.puntos).toEqual([2, 0]);
+    expect(e.participaciones).toEqual([1, 1, 0, 0]);
+  });
+
+  it("en modo light no se suman puntos", () => {
+    let e = crearEstado(sesion({ modo: "light" }), [panel("1", "Pan")], dificil);
+    e = reducir(e, { tipo: "letra", letra: "P" });
+    expect(e.puntos).toEqual([0, 0]);
+  });
+
+  it("completar todas las letras resuelve el panel", () => {
+    let e = crearEstado(sesion(), [panel("1", "Sol")], facil);
+    e = reducir(e, { tipo: "letra", letra: "S" });
+    e = reducir(e, { tipo: "letra", letra: "L" });
+    expect(e.panel.resultado).toBe("resuelto");
+    e = reducir(e, { tipo: "siguiente", nivel: facil });
+    expect(e.terminado).toBe(true);
+    expect(e.resultados).toEqual(["resuelto"]);
+  });
+
+  it("la ayuda muestra primero el texto y después la letra más frecuente (sin azar)", () => {
+    let e = crearEstado(sesion(), [panel("1", "Perro ladrador", { ayuda: "Hace guau" })], facil);
+    e = reducir(e, { tipo: "ayuda", nivel: facil });
+    expect(e.panel.ayudaTextoVista).toBe(true);
+    expect(letraDeAyuda(e.panel)).toBe("R");
+    e = reducir(e, { tipo: "ayuda", nivel: facil });
+    expect(e.panel.visibles).toContain("R");
+    const sinMas = reducir(e, { tipo: "ayuda", nivel: facil });
+    expect(sinMas).toBe(e);
+  });
+
+  it("resolver correctamente cierra el panel y fallar solo pasa el turno", () => {
+    let e = crearEstado(sesion(), [panel("1", "Ratón")], facil);
+    e = reducir(e, { tipo: "resolver", correcto: false });
+    expect(e.panel.resultado).toBeNull();
+    expect(e.turno).toBe(1);
+    e = reducir(e, { tipo: "resolver", correcto: true });
+    expect(e.panel.resultado).toBe("resuelto");
+    expect(e.puntos).toEqual([0, 3]);
+  });
+
+  it("comprueba propuestas sin tildes", () => {
+    expect(propuestaCorrecta("Ratón", ["R", "A", "T", "O", "N"])).toBe(true);
+    expect(propuestaCorrecta("Ratón", ["R", "A", "T", "A", "N"])).toBe(false);
+  });
+});
+
+describe("elegirPaneles", () => {
+  const todos = [
+    panel("a1", "Uno", { fase: 1 }),
+    panel("a2", "Dos", { fase: 1 }),
+    panel("b1", "Tres", { fase: 2 }),
+    panel("b2", "Cuatro", { fase: 2 }),
+    panel("c1", "Cinco", { fase: 1, nivel: "dificil" }),
+    panel("d1", "Seis", { fase: 1, tema: "otro" }),
+  ];
+
+  it("filtra por nivel y temática, ordena por fase y reparte entre fases", () => {
+    const elegidos = elegirPaneles(todos, { ...sesion(), temas: ["t"], paneles: 2 }, () => 0);
+    expect(elegidos.map((p) => p.fase)).toEqual([1, 2]);
+    expect(elegidos.every((p) => p.nivel === "facil" && p.tema === "t")).toBe(true);
+  });
+
+  it("no repite paneles ya jugados y respeta la fase inicial", () => {
+    const elegidos = elegirPaneles(todos, { ...sesion(), temas: [], faseInicial: 2, paneles: 5, jugados: ["b1"] });
+    expect(elegidos.map((p) => p.id)).toEqual(["b2"]);
+  });
+});

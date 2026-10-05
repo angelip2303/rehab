@@ -1,0 +1,21 @@
+# Ajustes de cada nivel.
+#   letrasReveladas: letras que aparecen destapadas al empezar cada panel.
+#                    Puede ser "vocales", "ninguna" o una lista de letras, p. ej. "AEL".
+#   ayudasPorPanel:  cuántas veces se puede pulsar "Ayuda" en cada panel.
+- id: facil
+  nombre: Fácil
+  descripcion: Frases cortas con las vocales ya destapadas
+  letrasReveladas: vocales
+  ayudasPorPanel: 3
+
+- id: moderado
+  nombre: Moderado
+  descripcion: Frases medianas con algunas letras de partida
+  letrasReveladas: AE
+  ayudasPorPanel: 2
+
+- id: dificil
+  nombre: Difícil
+  descripcion: Frases largas con el panel en blanco
+  letrasReveladas: ninguna
+  ayudasPorPanel: 2

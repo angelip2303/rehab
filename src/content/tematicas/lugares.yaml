@@ -1,0 +1,82 @@
+# Temática: Lugares
+nombre: Lugares
+icono: "🗺️"
+paneles:
+  # ---------- FÁCIL ----------
+  - frase: Playa
+    pista: Lugar con arena y mar
+    nivel: facil
+    fase: 1
+  - frase: Mercado
+    pista: Donde se compra fruta, carne y pescado
+    nivel: facil
+    fase: 1
+  - frase: La plaza mayor
+    pista: El centro de muchos pueblos y ciudades
+    nivel: facil
+    fase: 2
+  - frase: Iglesia
+    pista: Edificio con campanario
+    nivel: facil
+    fase: 2
+  - frase: La estación de tren
+    pista: Desde aquí salen los viajeros sobre raíles
+    nivel: facil
+    fase: 3
+  - frase: El centro de salud
+    pista: Donde nos atiende el médico de cabecera
+    nivel: facil
+    fase: 3
+
+  # ---------- MODERADO ----------
+  - frase: La Puerta del Sol
+    pista: Plaza de Madrid famosa por el reloj
+    nivel: moderado
+    fase: 1
+  - frase: La Alhambra de Granada
+    pista: Palacio nazarí andaluz
+    nivel: moderado
+    fase: 1
+  - frase: La Sagrada Familia
+    pista: Templo de Gaudí en Barcelona
+    nivel: moderado
+    fase: 2
+  - frase: El acueducto de Segovia
+    pista: Monumento romano de piedra
+    nivel: moderado
+    fase: 2
+  - frase: La catedral de Santiago de Compostela
+    pista: Meta del Camino
+    nivel: moderado
+    fase: 3
+  - frase: El río Ebro pasa por Zaragoza
+    pista: Junto a la basílica del Pilar
+    nivel: moderado
+    fase: 3
+
+  # ---------- DIFÍCIL ----------
+  - frase: Tres de Soria
+    pista: Ciudades o pueblos de una provincia castellana
+    nivel: dificil
+    fase: 1
+    ayuda: "Por ejemplo: Almazán"
+  - frase: Las islas Canarias
+    pista: Archipiélago del océano Atlántico
+    nivel: dificil
+    fase: 1
+  - frase: Todos los caminos llevan a Roma
+    pista: Refrán sobre llegar al mismo sitio
+    nivel: dificil
+    fase: 2
+  - frase: Quien fue a Sevilla perdió su silla
+    pista: Refrán sobre ausentarse
+    nivel: dificil
+    fase: 2
+  - frase: Las cuevas de Altamira tienen pinturas
+    pista: Arte prehistórico en Cantabria
+    nivel: dificil
+    fase: 3
+  - frase: El monasterio de El Escorial
+    pista: Lo mandó construir Felipe II
+    nivel: dificil
+    fase: 3
