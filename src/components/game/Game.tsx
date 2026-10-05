@@ -29,7 +29,7 @@ import { Keyboard, type EstadoTecla } from "./Keyboard";
 import { MissionBar } from "./MissionBar";
 import { Scoreboard } from "./Scoreboard";
 import { ScorePanel } from "./ScorePanel";
-import { Toggle } from "@/components/ui/toggle";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { SolveDialog } from "./SolveDialog";
 import { Summary } from "./Summary";
 import { TurnBanner } from "./TurnBanner";
@@ -108,7 +108,6 @@ function Partida({
   /** última letra jugada, para el feedback de acierto/fallo */
   const [jugada, setJugada] = useState<{ letra: string; n: number; id: number } | null>(null);
   const [temblorPanel, setTemblorPanel] = useState(0);
-  const [verMarcador, setVerMarcador] = useState(false);
 
   function jugarLetra(letra: string) {
     const n = apariciones(estado.panel.panel.frase, letra);
@@ -130,12 +129,15 @@ function Partida({
 
   useEffect(() => guardarPartida(estado), [estado]);
 
-  // Confeti solo cuando el grupo resuelve el panel (no al mostrar la solución ni al recargar).
-  const resultadoAnterior = useRef(estado.panel.resultado);
+  // Confeti cuando el grupo resuelve el panel y ya se han destapado todas sus casillas
+  // (no al mostrar la solución ni al recargar una partida ya celebrada).
+  const resueltoYDestapado = estado.panel.resultado === "resuelto" && (estado.panel.porVoltear ?? []).length === 0;
+  const panelCelebrado = useRef(resueltoYDestapado ? estado.actual : -1);
   useEffect(() => {
-    if (estado.panel.resultado === "resuelto" && resultadoAnterior.current !== "resuelto") celebrarPanel();
-    resultadoAnterior.current = estado.panel.resultado;
-  }, [estado.panel.resultado]);
+    if (!resueltoYDestapado || panelCelebrado.current === estado.actual) return;
+    panelCelebrado.current = estado.actual;
+    celebrarPanel();
+  }, [resueltoYDestapado, estado.actual]);
 
   const nivel = niveles.find((n) => n.id === estado.sesion.nivel)!;
   const { panel } = estado;
@@ -170,15 +172,23 @@ function Partida({
         <Badge variant="outline" className="px-3 py-1 text-base">
           {nivel.nombre}
         </Badge>
-        <Toggle
-          variant="outline"
-          size="lg"
-          pressed={verMarcador}
-          onPressedChange={setVerMarcador}
-          className="h-12 gap-2 px-4 text-lg data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:hover:bg-primary/90 data-[state=on]:hover:text-primary-foreground"
-        >
-          <TrophyIcon className="size-5" /> Marcador
-        </Toggle>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="outline" size="lg" className="h-12 gap-2 px-4 text-lg">
+              <TrophyIcon className="size-5" /> Marcador
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-5xl">
+            <DialogHeader>
+              <DialogTitle className="text-3xl">Marcador 🏆</DialogTitle>
+              <DialogDescription className="text-lg">
+                Panel {estado.actual + 1} de {estado.paneles.length} ·{" "}
+                {estado.sesion.modo === "concurso" ? "puntos por equipo y por persona" : "jugadas y aciertos de cada persona"}
+              </DialogDescription>
+            </DialogHeader>
+            <ScorePanel estado={estado} turno={turno} />
+          </DialogContent>
+        </Dialog>
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button variant="ghost" size="lg" aria-label="Salir">
@@ -223,7 +233,6 @@ function Partida({
           onVoltear={(indice) => despachar({ tipo: "voltear", indice })}
           className={cn("min-h-0 min-w-0 flex-1", temblorPanel > 0 && "animate-temblor")}
         />
-        {verMarcador && <ScorePanel estado={estado} turno={turno} />}
       </div>
 
       <Separator />
@@ -232,7 +241,11 @@ function Partida({
         <div className="flex flex-col gap-3">
           {terminado ? (
             <span className="text-2xl font-semibold">
-              {panel.resultado === "resuelto" ? "¡Panel resuelto! 🎉" : "Solución 👀"}
+              {panel.resultado === "mostrado"
+                ? "Solución 👀"
+                : resueltoYDestapado
+                  ? "¡Panel resuelto! 🎉"
+                  : "¡Resuelto! Destapad el panel ✨"}
             </span>
           ) : (
             <div className="flex items-center gap-4">

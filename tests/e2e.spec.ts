@@ -36,20 +36,21 @@ test("configurar una sesión, jugar y resolver un panel", async ({ page }) => {
     await expect(iluminadas.first()).toBeVisible();
     while ((await iluminadas.count()) > 0) await iluminadas.first().click();
   }
-  // Una letra que no está: se marca en rojo y se avisa
+  // Una letra que no está: se marca en rojo
   const ausente = await page.evaluate(() => {
     const enPanel = new Set([...document.querySelectorAll("[data-letra]")].map((e) => e.getAttribute("data-letra")));
     return "WXKZYQJ".split("").find((l) => !enPanel.has(l))!;
   });
   await page.getByRole("button", { name: `Letra ${ausente}`, exact: true }).click();
   await expect(page.getByRole("button", { name: `Letra ${ausente}`, exact: true })).toHaveAttribute("data-estado", "fallo");
-  // El marcador se abre y se cierra en cualquier momento
+  // El marcador se abre en un diálogo en cualquier momento
   await page.getByRole("button", { name: "Marcador" }).click();
-  await expect(page.getByRole("complementary", { name: "Marcador" })).toBeVisible();
-  await sinScroll(page);
+  const marcador = page.getByRole("dialog", { name: /Marcador/ });
+  await expect(marcador).toBeVisible();
+  await page.screenshot({ path: "test-results/3-marcador.png" });
+  await page.keyboard.press("Escape");
+  await expect(marcador).toBeHidden();
   await page.screenshot({ path: "test-results/3-letras.png" });
-  await page.getByRole("button", { name: "Marcador" }).click();
-  await expect(page.getByRole("complementary", { name: "Marcador" })).toBeHidden();
 
   // Resolver casilla a casilla
   const letras = await page
@@ -61,6 +62,10 @@ test("configurar una sesión, jugar y resolver un panel", async ({ page }) => {
   await page.screenshot({ path: "test-results/4-resolver.png" });
   await dialogo.getByRole("button", { name: "Comprobar" }).click();
 
+  // Primero se destapa el panel y después llega la celebración
+  await expect(page.getByText("¡Resuelto! Destapad el panel")).toBeVisible();
+  const porDestapar = page.locator("[data-iluminada]");
+  while ((await porDestapar.count()) > 0) await porDestapar.first().click();
   await expect(page.getByText("¡Panel resuelto!")).toBeVisible();
   await expect(page.getByText("1 / 4")).toBeVisible();
 

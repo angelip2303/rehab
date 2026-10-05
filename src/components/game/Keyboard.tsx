@@ -39,7 +39,7 @@ export function Keyboard({ onLetra, estadoTecla, onBorrar, onEspacio, deshabilit
                   "size-16 border-2 border-nord3/50 bg-nord6 text-3xl font-bold text-nord0",
                   estado === "acierto" && "border-nord14 bg-nord14 text-nord0 disabled:opacity-100",
                   estado === "fallo" &&
-                    "border-nord11 bg-nord11/15 text-nord11 line-through decoration-4 disabled:opacity-100",
+                    "border-nord11 bg-nord11/15 text-nord11 disabled:opacity-100",
                   temblor?.letra === letra && "animate-temblor",
                 )}
               >

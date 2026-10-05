@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { COLOR_EQUIPO } from "./colores";
 
 /**
- * Marcador detallado (se abre y se cierra con el botón «Marcador»): puntos por equipo y,
+ * Marcador detallado (se abre en un diálogo con el botón «Marcador»): puntos por equipo y,
  * por persona, jugadas, aciertos y puntos. En modo Light no se muestran puntos.
  */
 export function ScorePanel({ estado, turno }: { estado: Estado; turno: Turno }) {
@@ -15,7 +15,7 @@ export function ScorePanel({ estado, turno }: { estado: Estado; turno: Turno }) 
   const conEquipos = estado.equipos.length > 1;
 
   return (
-    <aside className="flex min-h-0 w-[clamp(16rem,24vw,24rem)] shrink-0 flex-col gap-3 overflow-y-auto" aria-label="Marcador">
+    <div className="grid gap-4 sm:grid-cols-2" aria-label="Marcador">
       {estado.equipos.map((e, i) => (
         <Card key={e.numero} className="gap-2 py-3">
           <CardHeader className="px-4">
@@ -59,6 +59,6 @@ export function ScorePanel({ estado, turno }: { estado: Estado; turno: Turno }) 
           </CardContent>
         </Card>
       ))}
-    </aside>
+    </div>
   );
 }
