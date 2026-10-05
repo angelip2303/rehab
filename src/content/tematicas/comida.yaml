@@ -3,8 +3,8 @@ nombre: Comida
 icono: "🍲"
 paneles:
   # ---------- FÁCIL ----------
-  - frase: Pan
-    pista: Se compra cada mañana en la panadería
+  - frase: Fabada
+    pista: Plato tradicional de la cocina asturiana
     nivel: facil
   - frase: Paella
     pista: Plato de arroz típico de Valencia
@@ -24,8 +24,8 @@ paneles:
     nivel: facil
 
   # ---------- MODERADO ----------
-  - frase: Cocido madrileño
-    pista: Guiso de garbanzos que se sirve en vuelcos
+  - frase: Frixuelos
+    pista: Postre típico de Asturias
     nivel: moderado
   - frase: Pulpo a la gallega
     pista: Con pimentón, aceite y sal
@@ -41,6 +41,12 @@ paneles:
     nivel: moderado
   - frase: Las uvas de Nochevieja
     pista: Se toman con las campanadas
+    nivel: moderado
+  - frase: Las marañuelas
+    pista: Dulces típicos de Candás y Luanco
+    nivel: moderado
+  - frase: Casadielles
+    pista: Dulces típicos del Antroxu
     nivel: moderado
 
   # ---------- DIFÍCIL ----------
@@ -61,4 +67,7 @@ paneles:
     nivel: dificil
   - frase: Donde comen dos, comen tres
     pista: Refrán sobre compartir la mesa
+    nivel: dificil
+  - frase: Pan con tomate, aceite de oliva, sal y ajo
+    pista: Desayuno típico de Cataluña
     nivel: dificil
