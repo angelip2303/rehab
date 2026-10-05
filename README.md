@@ -2,7 +2,7 @@
 
 Juego cooperativo tipo *La ruleta de la suerte* para sesiones de grupo (7–12 personas) en una
 **pizarra interactiva** (lápiz y pantalla táctil, sin teclado). Inspirado en el formato de NeuronUP:
-niveles Fácil / Moderado / Difícil con fases progresivas.
+niveles Fácil / Moderado / Difícil, de lo más sencillo a lo más complejo.
 
 - **Sin azar**: no hay ruleta; los turnos rotan de forma fija entre equipos y personas para que todo el mundo participe.
 - **Misión común**: todo el grupo va a por los mismos paneles. Los equipos son solo logística.

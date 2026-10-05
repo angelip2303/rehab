@@ -1,5 +1,5 @@
 import { useEffect, useReducer, useRef, useState } from "react";
-import { CheckIcon, EyeIcon, SparklesIcon, TrophyIcon, KeyboardIcon, LightbulbIcon, LogOutIcon, SkipForwardIcon, SpellCheckIcon } from "lucide-react";
+import { EyeIcon, SparklesIcon, TrophyIcon, KeyboardIcon, LightbulbIcon, LogOutIcon, SkipForwardIcon, SpellCheckIcon } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -105,7 +105,7 @@ function Partida({
   const [estado, despachar] = useReducer(reducir, inicial);
   const [resolviendo, setResolviendo] = useState(false);
   const [tecladoVisible, setTecladoVisible] = useState(true);
-  /** última letra jugada, para el feedback de acierto/fallo */
+  /** última letra jugada, para el temblor de la tecla al fallar */
   const [jugada, setJugada] = useState<{ letra: string; n: number; id: number } | null>(null);
   const [temblorPanel, setTemblorPanel] = useState(0);
 
@@ -191,7 +191,7 @@ function Partida({
         </Dialog>
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="ghost" size="lg" aria-label="Salir">
+            <Button variant="ghost" size="lg" className="size-12" aria-label="Salir">
               <LogOutIcon />
             </Button>
           </AlertDialogTrigger>
@@ -224,8 +224,7 @@ function Partida({
         </CardContent>
       </Card>
 
-      {/* El botón de destapar flota sobre el borde del tablero para no mover el resto de controles */}
-      <div className="relative flex min-h-0 flex-1 gap-4">
+      <div className="flex min-h-0 flex-1 gap-4">
         <Board
           key={`tablero-${temblorPanel}`}
           frase={panel.panel.frase}
@@ -234,16 +233,6 @@ function Partida({
           onVoltear={(indice) => despachar({ tipo: "voltear", indice })}
           className={cn("min-h-0 min-w-0 flex-1", temblorPanel > 0 && "animate-temblor")}
         />
-        {(panel.porVoltear ?? []).length > 0 && (
-          <Button
-            variant="outline"
-            size="lg"
-            className="absolute bottom-0 left-1/2 h-14 -translate-x-1/2 translate-y-1/2 border-2 border-nord12 bg-nord13 px-6 text-lg font-semibold text-nord0 shadow-lg hover:bg-nord13/80"
-            onClick={() => despachar({ tipo: "voltearTodas" })}
-          >
-            <SparklesIcon className="size-6" /> Destapar las iluminadas ({panel.porVoltear.length})
-          </Button>
-        )}
       </div>
 
       <Separator />
@@ -261,29 +250,18 @@ function Partida({
           ) : (
             <div className="flex h-14 items-center gap-4">
               <TurnBanner turno={turno} equipos={estado.equipos} personas={estado.sesion.personas} />
-              {jugada && jugada.n > 0 && (
-                <Badge
-                  key={jugada.id}
-                  role="status"
-                  className="animate-in fade-in zoom-in-95 gap-2 bg-nord14 px-4 py-1.5 text-xl font-bold text-nord0"
-                >
-                  <CheckIcon className="size-5" />
-                  Hay {jugada.n} {jugada.letra}
-                  {estado.sesion.modo === "concurso" && ` · +${jugada.n}`}
-                </Badge>
-              )}
             </div>
           )}
           <div className="flex h-16 items-center gap-2">
             {terminado ? (
-              <Button size="lg" className="h-16 px-10 text-2xl" onClick={() => despachar({ tipo: "siguiente", nivel })}>
+              <Button size="lg" className="h-16 px-8 text-xl" onClick={() => despachar({ tipo: "siguiente", nivel })}>
                 {estado.actual + 1 < estado.paneles.length ? "Siguiente panel" : "Ver resumen"}
               </Button>
             ) : (
               <>
                 <Button
                   size="lg"
-                  className="h-14 px-6 text-lg"
+                  className="h-16 px-6 text-lg"
                   onClick={() => {
                     despachar({ tipo: "voltearTodas" });
                     setResolviendo(true);
@@ -294,7 +272,7 @@ function Partida({
                 <Button
                   variant="secondary"
                   size="lg"
-                  className="h-14 px-6 text-lg"
+                  className="h-16 px-6 text-lg"
                   disabled={ayudasRestantes <= 0}
                   onClick={() => despachar({ tipo: "ayuda", nivel })}
                 >
@@ -303,7 +281,7 @@ function Partida({
                 </Button>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button variant="ghost" size="lg" className="h-14 px-6 text-lg">
+                    <Button variant="ghost" size="lg" className="h-16 px-6 text-lg">
                       <EyeIcon className="size-6" /> Ver solución
                     </Button>
                   </AlertDialogTrigger>
@@ -318,11 +296,30 @@ function Partida({
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
-                <Button variant="ghost" size="lg" className="h-14 px-6 text-lg" onClick={() => despachar({ tipo: "saltarTurno" })}>
-                  <SkipForwardIcon className="size-6" /> Saltar turno
-                </Button>
               </>
             )}
+          </div>
+          {/* Fila fija: los huecos se reservan aunque el botón no se vea, para que nada se mueva */}
+          <div className="flex h-16 items-center gap-2">
+            <Button
+              variant="ghost"
+              size="lg"
+              className={cn("h-16 px-6 text-lg", terminado && "invisible")}
+              onClick={() => despachar({ tipo: "saltarTurno" })}
+            >
+              <SkipForwardIcon className="size-6" /> Saltar turno
+            </Button>
+            <Button
+              variant="outline"
+              size="lg"
+              className={cn(
+                "h-16 border-2 border-nord12 bg-nord13 px-6 text-lg font-semibold text-nord0 hover:bg-nord13/80",
+                (panel.porVoltear ?? []).length === 0 && "invisible",
+              )}
+              onClick={() => despachar({ tipo: "voltearTodas" })}
+            >
+              <SparklesIcon className="size-6" /> Destapar las iluminadas ({(panel.porVoltear ?? []).length})
+            </Button>
           </div>
         </div>
 

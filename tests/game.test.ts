@@ -7,7 +7,7 @@ const facil: Nivel = { id: "facil", nombre: "Fácil", letrasReveladas: "vocales"
 const dificil: Nivel = { id: "dificil", nombre: "Difícil", letrasReveladas: "ninguna", ayudasPorPanel: 1 };
 
 const panel = (id: string, frase: string, extra: Partial<Panel> = {}): Panel => ({
-  id, tema: "t", frase, pista: "pista", nivel: "facil", fase: 1, ...extra,
+  id, tema: "t", frase, pista: "pista", nivel: "facil", ...extra,
 });
 
 const sesion = (extra: Partial<Sesion> = {}): Sesion => ({
@@ -93,22 +93,20 @@ describe("partida", () => {
 
 describe("elegirPaneles", () => {
   const todos = [
-    panel("a1", "Uno", { fase: 1 }),
-    panel("a2", "Dos", { fase: 1 }),
-    panel("b1", "Tres", { fase: 2 }),
-    panel("b2", "Cuatro", { fase: 2 }),
-    panel("c1", "Cinco", { fase: 1, nivel: "dificil" }),
-    panel("d1", "Seis", { fase: 1, tema: "otro" }),
+    panel("largo", "Una frase bastante larga"),
+    panel("corto", "Sol"),
+    panel("medio", "La casa azul"),
+    panel("dificil", "Cinco", { nivel: "dificil" }),
+    panel("otro", "Seis", { tema: "otro" }),
   ];
 
-  it("filtra por nivel y temática, ordena por fase y reparte entre fases", () => {
-    const elegidos = elegirPaneles(todos, { ...sesion(), temas: ["t"], paneles: 2 }, () => 0);
-    expect(elegidos.map((p) => p.fase)).toEqual([1, 2]);
-    expect(elegidos.every((p) => p.nivel === "facil" && p.tema === "t")).toBe(true);
+  it("filtra por nivel y temática y ordena de la frase más corta a la más larga", () => {
+    const elegidos = elegirPaneles(todos, { ...sesion(), temas: ["t"], paneles: 10 });
+    expect(elegidos.map((p) => p.id)).toEqual(["corto", "medio", "largo"]);
   });
 
-  it("no repite paneles ya jugados", () => {
-    const elegidos = elegirPaneles(todos, { ...sesion(), temas: ["t"], paneles: 5, jugados: ["a1", "b1"] });
-    expect(elegidos.map((p) => p.id)).toEqual(["a2", "b2"]);
+  it("no repite paneles ya jugados y respeta cuántos se juegan", () => {
+    const elegidos = elegirPaneles(todos, { ...sesion(), temas: ["t"], paneles: 1, jugados: ["corto", "medio"] });
+    expect(elegidos.map((p) => p.id)).toEqual(["largo"]);
   });
 });

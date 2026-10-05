@@ -6,76 +6,58 @@ paneles:
   - frase: Mesa
     pista: Mueble donde comemos
     nivel: facil
-    fase: 1
   - frase: Cama
     pista: Mueble para dormir
     nivel: facil
-    fase: 1
   - frase: La cocina
     pista: Habitación donde se preparan las comidas
     nivel: facil
-    fase: 2
   - frase: Sofá
     pista: Asiento cómodo del salón
     nivel: facil
-    fase: 2
   - frase: La lavadora
     pista: Electrodoméstico que lava la ropa
     nivel: facil
-    fase: 3
   - frase: Las llaves de casa
     pista: Sin ellas no podemos abrir la puerta
     nivel: facil
-    fase: 3
 
   # ---------- MODERADO ----------
   - frase: El cuarto de baño
     pista: Aquí está la ducha
     nivel: moderado
-    fase: 1
   - frase: Una escoba y un recogedor
     pista: Para barrer el suelo
     nivel: moderado
-    fase: 1
   - frase: Regar las plantas del balcón
     pista: Una tarea con la regadera
     nivel: moderado
-    fase: 2
   - frase: Poner la mesa para cenar
     pista: Mantel, platos, cubiertos y vasos
     nivel: moderado
-    fase: 2
   - frase: Tender la ropa al sol
     pista: Lo que se hace después de la lavadora
     nivel: moderado
-    fase: 3
   - frase: Hacer la cama por la mañana
     pista: Estirar las sábanas al levantarse
     nivel: moderado
-    fase: 3
 
   # ---------- DIFÍCIL ----------
   - frase: En casa del herrero, cuchillo de palo
     pista: Refrán sobre lo que falta donde más debería haber
     nivel: dificil
-    fase: 1
   - frase: Cada uno en su casa y Dios en la de todos
     pista: Refrán sobre la independencia
     nivel: dificil
-    fase: 1
   - frase: Los trapos sucios se lavan en casa
     pista: Refrán sobre los problemas familiares
     nivel: dificil
-    fase: 2
   - frase: Hogar, dulce hogar
     pista: Lo que se siente al volver a casa
     nivel: dificil
-    fase: 2
   - frase: Casa con dos puertas mala es de guardar
     pista: Refrán y título de una comedia de Calderón
     nivel: dificil
-    fase: 3
   - frase: Barrer hacia dentro
     pista: Expresión sobre mirar por lo propio
     nivel: dificil
-    fase: 3

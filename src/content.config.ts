@@ -20,7 +20,6 @@ const panel = z.object({
   frase,
   pista: z.string({ error: "Falta la pista del panel" }).trim().min(1, "La pista no puede estar vacía"),
   nivel: z.enum(NIVELES, { error: "El nivel tiene que ser: facil, moderado o dificil" }),
-  fase: z.number({ error: "La fase tiene que ser un número (1, 2, 3…)" }).int().min(1),
   ayuda: z.string().trim().optional(),
 });
 

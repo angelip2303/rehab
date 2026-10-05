@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
-import { CheckCheckIcon, CheckIcon, MinusIcon, PlusIcon, UsersIcon } from "lucide-react";
+import { CheckCheckIcon, CheckIcon, MinusIcon, PlusIcon, TargetIcon, UsersIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -18,6 +19,10 @@ import type { Modo, Nivel, NivelId, Panel, Tema } from "@/lib/types";
 const MIN_PERSONAS = 2;
 const MAX_PERSONAS = 20;
 const OPCIONES_PANELES = [4, 6, 8, 10];
+const MODOS: { id: Modo; nombre: string; icono: string; descripcion: string }[] = [
+  { id: "light", nombre: "Light", icono: "🤝", descripcion: "Sin puntos: todo el grupo a por la misma misión" },
+  { id: "concurso", nombre: "Concurso", icono: "🏆", descripcion: "Cada equipo suma puntos, la misión sigue siendo común" },
+];
 /** 0 = jugar todos los paneles disponibles */
 const TODOS = 0;
 const opcion =
@@ -46,6 +51,8 @@ export function SessionSetup({ temas, niveles, paneles }: Props) {
   ).length;
   const repartos = crearEquipos(personas.length, equipos);
 
+  const totalMision = numPaneles === TODOS ? disponibles : Math.min(numPaneles, disponibles);
+
   function cambiarPersonas(delta: number) {
     setPersonas((ps) => {
       const n = Math.max(MIN_PERSONAS, Math.min(MAX_PERSONAS, ps.length + delta));
@@ -60,7 +67,7 @@ export function SessionSetup({ temas, niveles, paneles }: Props) {
       personas,
       equipos: Math.min(equipos, personas.length),
       modo,
-      paneles: numPaneles === TODOS ? disponibles : Math.min(numPaneles, disponibles),
+      paneles: totalMision,
       jugados: [],
     };
     guardarSesion(sesion);
@@ -129,21 +136,24 @@ export function SessionSetup({ temas, niveles, paneles }: Props) {
               </Button>
             </CardAction>
           </CardHeader>
-          <CardContent>
+          {/* Carrusel: con muchas temáticas se desliza (dedo, lápiz o flechas) sin cambiar de tamaño */}
+          <CardContent className="px-20">
             <ToggleGroup
               type="multiple"
               variant="outline"
               spacing={2}
-              className="grid w-full grid-cols-2 xl:grid-cols-4"
+              className="block w-full"
               aria-label="Temáticas"
               value={temasElegidos}
               onValueChange={(v) => v.length > 0 && setTemasElegidos(v)}
             >
+              <Carousel opts={{ align: "start", dragFree: true }}>
+                <CarouselContent>
               {temas.map((t) => {
                 const elegido = temasElegidos.includes(t.id);
                 return (
+                  <CarouselItem key={t.id} className="basis-1/2 xl:basis-1/4">
                   <ToggleGroupItem
-                    key={t.id}
                     value={t.id}
                     aria-label={t.nombre}
                     className="relative h-auto w-full flex-col gap-1 border-2 px-3 py-3 text-lg whitespace-normal data-[state=on]:border-primary data-[state=on]:bg-primary/15 data-[state=on]:text-foreground data-[state=on]:hover:bg-primary/20"
@@ -161,8 +171,13 @@ export function SessionSetup({ temas, niveles, paneles }: Props) {
                       {t.paneles[nivel]} {t.paneles[nivel] === 1 ? "panel" : "paneles"}
                     </span>
                   </ToggleGroupItem>
+                  </CarouselItem>
                 );
               })}
+                </CarouselContent>
+                <CarouselPrevious className="-left-16 size-12 [&_svg]:size-6" aria-label="Ver temáticas anteriores" />
+                <CarouselNext className="-right-16 size-12 [&_svg]:size-6" aria-label="Ver más temáticas" />
+              </Carousel>
             </ToggleGroup>
           </CardContent>
         </Card>
@@ -177,7 +192,7 @@ export function SessionSetup({ temas, niveles, paneles }: Props) {
               </Button>
             </CardAction>
           </CardHeader>
-          <CardContent className="flex min-h-0 flex-col gap-3">
+          <CardContent className="flex min-h-0 flex-1 flex-col gap-3">
             <div className="flex flex-wrap items-end gap-6">
               <div className="flex flex-col gap-2">
                 <Label className="text-base">Personas</Label>
@@ -210,9 +225,12 @@ export function SessionSetup({ temas, niveles, paneles }: Props) {
               </div>
             </div>
             {/* Reparto: una columna por equipo, con todos los nombres visibles (sin cortes) */}
-            <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${repartos.length}, minmax(0, 1fr))` }}>
+            <div
+              className="grid min-h-0 flex-1 gap-2"
+              style={{ gridTemplateColumns: `repeat(${repartos.length}, minmax(0, 1fr))` }}
+            >
               {repartos.map((e, i) => (
-                <div key={e.numero} className="rounded-md border px-3 py-2">
+                <div key={e.numero} className="h-full rounded-md border bg-background/60 px-3 py-2">
                   <p className="mb-1 flex items-center gap-2 text-sm font-semibold">
                     <span className="size-3 shrink-0 rounded-full" style={{ background: COLOR_EQUIPO[i] }} />
                     {repartos.length > 1 ? e.nombre : "Grupo"}
@@ -233,24 +251,43 @@ export function SessionSetup({ temas, niveles, paneles }: Props) {
         <Card className="min-h-0 gap-4 py-5">
           <CardHeader>
             <CardTitle className="text-xl">Modo y misión</CardTitle>
-            <CardDescription>
-              {modo === "light"
-                ? "Light: sin puntos, todo el grupo a por la misma misión"
-                : "Concurso: cada equipo suma puntos, pero la misión sigue siendo común"}
-            </CardDescription>
+            <CardDescription>Cómo se juega y cuántos paneles tiene que completar el grupo</CardDescription>
           </CardHeader>
-          <CardContent className="flex min-h-0 flex-col gap-3">
-            <ToggleGroup type="single" variant="outline" spacing={2} aria-label="Modo"
-              value={modo} onValueChange={(v) => v && setModo(v as Modo)}>
-              <ToggleGroupItem value="light" className={opcion}>Light</ToggleGroupItem>
-              <ToggleGroupItem value="concurso" className={opcion}>Concurso</ToggleGroupItem>
+          <CardContent className="flex min-h-0 flex-col gap-4">
+            <ToggleGroup
+              type="single"
+              variant="outline"
+              spacing={2}
+              className="grid w-full grid-cols-2"
+              aria-label="Modo"
+              value={modo}
+              onValueChange={(v) => v && setModo(v as Modo)}
+            >
+              {MODOS.map((m) => (
+                <ToggleGroupItem
+                  key={m.id}
+                  value={m.id}
+                  aria-label={m.nombre}
+                  className={cn(opcion, "h-full w-full flex-row items-center justify-start gap-3 px-4 py-3 text-left whitespace-normal")}
+                >
+                  <span className="text-4xl leading-none" aria-hidden>
+                    {m.icono}
+                  </span>
+                  <span className="flex flex-col gap-0.5">
+                    <span className="text-xl font-semibold">{m.nombre}</span>
+                    <span className="text-sm opacity-80">{m.descripcion}</span>
+                  </span>
+                </ToggleGroupItem>
+              ))}
             </ToggleGroup>
+
             <div className="flex flex-col gap-2">
               <Label className="text-base">¿Cuántos paneles se juegan?</Label>
               <ToggleGroup
                 type="single"
                 variant="outline"
                 spacing={2}
+                className="flex-wrap"
                 aria-label="Paneles de la misión"
                 value={String(numPaneles >= disponibles ? TODOS : numPaneles)}
                 onValueChange={(v) => v && setNumPaneles(Number(v))}
@@ -259,15 +296,25 @@ export function SessionSetup({ temas, niveles, paneles }: Props) {
                   Todos ({disponibles})
                 </ToggleGroupItem>
                 {OPCIONES_PANELES.filter((n) => n < disponibles).map((n) => (
-                  <ToggleGroupItem key={n} value={String(n)} className={opcion}>
+                  <ToggleGroupItem key={n} value={String(n)} className={cn(opcion, "min-w-14")}>
                     {n}
                   </ToggleGroupItem>
                 ))}
               </ToggleGroup>
-              <p className="text-sm text-muted-foreground">
-                {disponibles === 0
-                  ? "No hay paneles de este nivel en las temáticas elegidas."
-                  : "La misión del grupo es completar estos paneles, de los más sencillos a los más complejos."}
+            </div>
+
+            <div className="mt-auto flex items-center gap-3 rounded-lg border-2 border-primary/40 bg-primary/10 px-4 py-3">
+              <TargetIcon className="size-8 shrink-0 text-primary" />
+              <p className="text-lg">
+                {disponibles === 0 ? (
+                  "No hay paneles de este nivel en las temáticas elegidas."
+                ) : (
+                  <>
+                    <strong>Misión:</strong> resolver {totalMision} {totalMision === 1 ? "panel" : "paneles"} entre todo el
+                    grupo, de lo más sencillo a lo más complejo
+                    {modo === "concurso" ? " · los equipos suman puntos" : ""}.
+                  </>
+                )}
               </p>
             </div>
           </CardContent>

@@ -2,14 +2,18 @@ import { expect, test, type Page } from "@playwright/test";
 
 /** Cada vista tiene que caber en una pantalla, como una diapositiva. */
 async function sinScroll(page: Page) {
-  const { alto, visible } = await page.evaluate(() => ({
+  const { alto, visible, ancho, visibleAncho } = await page.evaluate(() => ({
     alto: document.documentElement.scrollHeight,
     visible: window.innerHeight,
+    ancho: document.documentElement.scrollWidth,
+    visibleAncho: window.innerWidth,
   }));
   expect(alto).toBeLessThanOrEqual(visible);
+  expect(ancho).toBeLessThanOrEqual(visibleAncho);
   // y nada se corta dentro de las tarjetas
   const cortadas = await page.evaluate(() =>
     [...document.querySelectorAll<HTMLElement>("[data-slot=card], [data-slot=card] *")]
+      .filter((el) => !el.classList.contains("sr-only"))
       .filter((el) => el.scrollHeight > el.clientHeight + 1 && getComputedStyle(el).overflowY !== "visible")
       .map((el) => el.textContent?.slice(0, 40)),
   );
@@ -26,7 +30,7 @@ test("configurar una sesión, jugar y resolver un panel", async ({ page }) => {
   await page.getByRole("button", { name: "¡A jugar!" }).click();
 
   await expect(page).toHaveURL(/\/jugar\/$/);
-  await expect(page.getByText("Turno de")).toBeVisible();
+  await expect(page.getByText("Turno de", { exact: true })).toBeVisible();
   await sinScroll(page);
   await page.screenshot({ path: "test-results/2-panel.png" });
 
@@ -108,7 +112,7 @@ for (const viewport of [{ width: 1366, height: 768 }, { width: 1280, height: 720
     await sinScroll(page);
     await page.screenshot({ path: `test-results/config-${viewport.width}.png` });
     await page.getByRole("button", { name: "¡A jugar!" }).click();
-    await expect(page.getByText("Turno de")).toBeVisible();
+    await expect(page.getByText("Turno de", { exact: true })).toBeVisible();
     await sinScroll(page);
     for (let i = 0; i < 4; i++) {
       await page.getByRole("button", { name: "Ver solución" }).click();

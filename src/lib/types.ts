@@ -7,7 +7,6 @@ export interface Panel {
   frase: string;
   pista: string;
   nivel: NivelId;
-  fase: number;
   ayuda?: string;
 }
 

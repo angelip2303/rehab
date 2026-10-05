@@ -26,7 +26,6 @@ paneles:
   - frase: El ratón come queso                    # lo que hay que adivinar
     pista: Pequeño animal al que le gusta el queso # se ve siempre encima del panel
     nivel: facil                                   # facil, moderado o dificil
-    fase: 1                                        # 1, 2, 3… (la sesión avanza de fase poco a poco)
     ayuda: Vive en agujeros                        # opcional: se enseña al pulsar «Ayuda»
 ```
 
@@ -38,11 +37,11 @@ Reglas importantes:
 - La frase tiene que caber en el tablero: 4 filas de 12, 14, 14 y 12 casillas, y ninguna palabra de más de 14 letras.
 - Las tildes se escriben normal (ratón). En el juego basta con pulsar la letra sin tilde.
 
-## Niveles y fases
+## Niveles
 
-- **Nivel**: Fácil, Moderado o Difícil (como en NeuronUP).
-- **Fase**: dentro de cada nivel, la fase 1 es la más sencilla. Al jugar solo se elige el nivel; la sesión
-  empieza por los paneles de fase 1 y va avanzando sola. Conviene que en cada nivel haya paneles en todas las fases.
+- **Nivel**: Fácil, Moderado o Difícil (como en NeuronUP). Al jugar solo se elige el nivel.
+- No hace falta ordenar los paneles: en cada sesión se juegan de la frase más corta a la más larga,
+  así la dificultad sube poco a poco sola.
 
 Los ajustes de cada nivel están en `src/content/niveles.yaml`:
 

@@ -8,10 +8,15 @@ export const PUNTOS_RESOLVER = 3;
 
 /* ---------- Selección de paneles ---------- */
 
+/** Nº de letras de la frase: cuanto más corta, más sencilla. */
+export function dificultad(p: Panel): number {
+  return crearTablero(p.frase).casillasLetra.length;
+}
+
 /**
- * Elige los paneles de la misión: del nivel elegido y de las temáticas elegidas,
- * ordenados de la fase 1 en adelante (progresión gradual dentro del nivel).
- * Dentro de una misma fase el orden se baraja para variar entre sesiones.
+ * Elige los paneles de la misión: del nivel y las temáticas elegidas, sin repetir los ya jugados.
+ * Se eligen al azar (para variar entre sesiones) y se juegan de la frase más corta a la más
+ * larga, así la sesión va de lo más sencillo a lo más complejo sin que haya que marcarlo.
  */
 export function elegirPaneles(
   todos: Panel[],
@@ -24,26 +29,9 @@ export function elegirPaneles(
       (sesion.temas.length === 0 || sesion.temas.includes(p.tema)) &&
       !sesion.jugados.includes(p.id),
   );
-  const porFase = new Map<number, Panel[]>();
-  for (const p of candidatos) porFase.set(p.fase, [...(porFase.get(p.fase) ?? []), p]);
-
-  // Reparto equilibrado: misma cantidad por fase (las primeras fases reciben el resto).
-  const fases = [...porFase.keys()].sort((a, b) => a - b);
-  const barajadas = fases.map((f) => barajar(porFase.get(f)!, aleatorio));
-  const cuota = fases.map(() => 0);
-  let restantes = sesion.paneles;
-  while (restantes > 0) {
-    let asignado = false;
-    for (let i = 0; i < fases.length && restantes > 0; i++) {
-      if (cuota[i] < barajadas[i].length) {
-        cuota[i]++;
-        restantes--;
-        asignado = true;
-      }
-    }
-    if (!asignado) break;
-  }
-  return barajadas.flatMap((lista, i) => lista.slice(0, cuota[i]));
+  return barajar(candidatos, aleatorio)
+    .slice(0, sesion.paneles)
+    .sort((a, b) => dificultad(a) - dificultad(b));
 }
 
 function barajar<T>(lista: T[], aleatorio: () => number): T[] {
