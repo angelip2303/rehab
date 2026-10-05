@@ -13,14 +13,11 @@ paneles:
   - frase: Tortilla de patatas
     pista: Con cebolla o sin cebolla
     nivel: facil
-  - frase: Café con leche
-    pista: Bebida típica del desayuno
-    nivel: facil
   - frase: Gazpacho
-    pista: Sopa fría de tomate para el verano
+    pista: Sopa fría de tomate y verduras típica de Andalucía
     nivel: facil
   - frase: Churros con chocolate
-    pista: Merienda de invierno en la churrería
+    pista: Desayuno popular del uno de Enero
     nivel: facil
 
   # ---------- MODERADO ----------
@@ -56,9 +53,6 @@ paneles:
   - frase: Al pan, pan y al vino, vino
     pista: Refrán sobre hablar claro
     nivel: dificil
-  - frase: Contigo, pan y cebolla
-    pista: Lo que se dice por amor, aunque falte de todo
-    nivel: dificil
   - frase: Las cosas claras y el chocolate espeso
     pista: Refrán sobre la sinceridad
     nivel: dificil
@@ -67,4 +61,7 @@ paneles:
     nivel: dificil
   - frase: Pan con tomate, aceite de oliva, sal y ajo
     pista: Desayuno típico de Cataluña
+    nivel: dificil
+  - frase: El que se pica, ajos come
+    pista: Refrán sobre darse por aludido
     nivel: dificil
