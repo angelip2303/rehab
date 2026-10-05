@@ -24,12 +24,11 @@ paneles:
     nivel: facil
     
   # ---------- MODERADO ----------
-  - frase: Elefante africano
-    pista: El animal terrestre más grande
+  - frase: El Asturcón
+    pista: Poni asturiano
     nivel: moderado
-    ayuda: Tiene trompa
-  - frase: Caballo de carreras
-    pista: Corre en el hipódromo
+  - frase: Urogallo cantábrico
+    pista: Ave forestal en peligro de extinción
     nivel: moderado
   - frase: La jirafa tiene el cuello largo
     pista: Así alcanza las hojas de los árboles
@@ -40,8 +39,8 @@ paneles:
   - frase: Las abejas fabrican miel en la colmena
     pista: Un trabajo dulce en equipo
     nivel: moderado
-  - frase: El camaleón cambia de color
-    pista: Un reptil que se camufla
+  - frase: Paca y Tola
+    pista: Osas mellizas asturianas
     nivel: moderado
 
   # ---------- DIFÍCIL ----------
