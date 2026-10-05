@@ -23,9 +23,6 @@ paneles:
     nivel: facil
 
   # ---------- MODERADO ----------
-  - frase: El cuarto de baño
-    pista: Aquí está la ducha
-    nivel: moderado
   - frase: Una escoba y un recogedor
     pista: Para barrer el suelo
     nivel: moderado
