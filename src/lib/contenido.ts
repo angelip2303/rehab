@@ -18,10 +18,7 @@ export async function cargarContenido(): Promise<{ temas: Tema[]; niveles: Nivel
     ) as Record<NivelId, number>,
   }));
   const niveles: Nivel[] = (await getCollection("niveles"))
-    .map((n) => ({
-      ...n.data,
-      fases: [...new Set(paneles.filter((p) => p.nivel === n.data.id).map((p) => p.fase))].sort((a, b) => a - b),
-    }))
+    .map((n) => n.data)
     .sort((a, b) => ORDEN.indexOf(a.id) - ORDEN.indexOf(b.id));
   return { temas, niveles, paneles };
 }

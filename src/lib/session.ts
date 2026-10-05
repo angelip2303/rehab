@@ -2,7 +2,6 @@ import type { Modo, NivelId } from "./types";
 
 export interface Sesion {
   nivel: NivelId;
-  faseInicial: number;
   temas: string[];
   /** nombres opcionales; la longitud es el nº de personas */
   personas: string[];

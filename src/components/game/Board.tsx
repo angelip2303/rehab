@@ -4,8 +4,11 @@ import { cn } from "@/lib/utils";
 
 interface Props {
   frase: string;
-  /** letras visibles en el tablero */
+  /** letras descubiertas */
   visibles: string[];
+  /** casillas iluminadas pendientes de destapar con el lápiz */
+  porVoltear?: number[];
+  onVoltear?: (indice: number) => void;
   /** modo Resolver: letra propuesta por cada casilla de letra (por índice) */
   propuesta?: (string | undefined)[];
   /** modo Resolver: índice de la casilla que se está rellenando */
@@ -21,16 +24,16 @@ interface Props {
  * Tablero tipo "ruleta de la suerte": 4 filas × 14 columnas.
  * El tamaño de las casillas se adapta al espacio disponible (container queries).
  */
-export function Board({ frase, visibles, propuesta, cursor, errores, onCasilla, className }: Props) {
+export function Board({ frase, visibles, porVoltear = [], onVoltear, propuesta, cursor, errores, onCasilla, className }: Props) {
   const tablero = useMemo(() => crearTablero(frase), [frase]);
 
   return (
     <div className={cn("[container-type:size] flex size-full items-center justify-center", className)}>
       <div
-        className="grid gap-[calc(var(--casilla)*0.08)]"
+        className="grid gap-[calc(var(--casilla)*0.08)] rounded-2xl border-4 border-neutral-300 bg-neutral-200 p-[calc(var(--casilla)*0.18)] shadow-md"
         style={
           {
-            "--casilla": "min(calc(100cqw / 14.2), calc(100cqh / 4.4 / 1.3))",
+            "--casilla": "min(calc(100cqw / 15.2), calc(100cqh / 4.9 / 1.3))",
             gridTemplateColumns: `repeat(${COLUMNAS}, var(--casilla))`,
             gridAutoRows: "calc(var(--casilla) * 1.3)",
           } as React.CSSProperties
@@ -42,10 +45,11 @@ export function Board({ frase, visibles, propuesta, cursor, errores, onCasilla, 
           fila.map((casilla, c) => {
             const clave = `${f}-${c}`;
             if (casilla === undefined) return <div key={clave} />;
-            if (casilla === null) return <div key={clave} className="rounded-md bg-sky-600 shadow-inner" />;
+            if (casilla === null) return <div key={clave} className="rounded-md bg-sky-600 shadow-inner" aria-hidden />;
 
             const esLetra = casilla.letra !== null;
-            const visible = !esLetra || visibles.includes(casilla.letra!);
+            const iluminada = esLetra && porVoltear.includes(casilla.indice);
+            const visible = !esLetra || (visibles.includes(casilla.letra!) && !iluminada);
             const propuesta_ = esLetra && !visible ? propuesta?.[casilla.indice] : undefined;
             const activa = esLetra && !visible && cursor === casilla.indice;
             const error = esLetra && errores?.includes(casilla.indice);
@@ -55,11 +59,22 @@ export function Board({ frase, visibles, propuesta, cursor, errores, onCasilla, 
                 key={clave}
                 data-letra={casilla.letra ?? undefined}
                 data-visible={visible}
-                onClick={esLetra && !visible && onCasilla ? () => onCasilla(casilla.indice) : undefined}
+                data-iluminada={iluminada || undefined}
+                role={iluminada ? "button" : undefined}
+                aria-label={iluminada ? "Destapar casilla" : undefined}
+                onClick={
+                  iluminada && onVoltear
+                    ? () => onVoltear(casilla.indice)
+                    : esLetra && !visible && onCasilla
+                      ? () => onCasilla(casilla.indice)
+                      : undefined
+                }
                 className={cn(
-                  "flex items-center justify-center rounded-md border bg-card font-bold text-card-foreground shadow-sm transition-colors",
-                  activa && "ring-4 ring-ring",
-                  error && "border-destructive bg-destructive/10 text-destructive",
+                  "flex items-center justify-center rounded-md border-[3px] border-neutral-500 bg-white font-bold text-neutral-950 shadow transition-colors",
+                  activa && "border-sky-700 ring-4 ring-sky-400",
+                  iluminada &&
+                    "cursor-pointer border-amber-600 bg-amber-300 shadow-[0_0_calc(var(--casilla)*0.35)_rgb(251_191_36)] animate-pulse",
+                  error && "border-destructive bg-red-100 text-destructive",
                 )}
                 style={{ fontSize: "calc(var(--casilla) * 0.7)" }}
               >

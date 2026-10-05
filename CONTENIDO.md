@@ -41,8 +41,8 @@ Reglas importantes:
 ## Niveles y fases
 
 - **Nivel**: Fácil, Moderado o Difícil (como en NeuronUP).
-- **Fase**: dentro de cada nivel, la fase 1 es la más sencilla. Al jugar se empieza por la fase elegida
-  y se avanza de fase según se completan paneles. Conviene que en cada nivel haya paneles en todas las fases.
+- **Fase**: dentro de cada nivel, la fase 1 es la más sencilla. Al jugar solo se elige el nivel; la sesión
+  empieza por los paneles de fase 1 y va avanzando sola. Conviene que en cada nivel haya paneles en todas las fases.
 
 Los ajustes de cada nivel están en `src/content/niveles.yaml`:
 

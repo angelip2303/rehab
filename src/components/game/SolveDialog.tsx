@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { vibrarFallo } from "@/lib/feedback";
 import { crearTablero } from "@/lib/layout";
+import { cn } from "@/lib/utils";
 import { Board } from "./Board";
 import { Keyboard } from "./Keyboard";
 
@@ -25,6 +27,7 @@ export function SolveDialog({ abierto, frase, pista, visibles, onTerminar }: Pro
   const [cursor, setCursor] = useState(0);
   const [errores, setErrores] = useState<number[]>([]);
   const [intentado, setIntentado] = useState(false);
+  const [fallos, setFallos] = useState(0);
 
   useEffect(() => {
     if (!abierto) return;
@@ -54,7 +57,11 @@ export function SolveDialog({ abierto, frase, pista, visibles, onTerminar }: Pro
     setIntentado(true);
     const malas = ocultas.filter((i) => propuesta[i] !== casillas[i].letra);
     if (malas.length === 0) onTerminar(true);
-    else setErrores(malas);
+    else {
+      setErrores(malas);
+      setFallos((f) => f + 1);
+      vibrarFallo();
+    }
   }
 
   return (
@@ -71,7 +78,8 @@ export function SolveDialog({ abierto, frase, pista, visibles, onTerminar }: Pro
           cursor={cursor}
           errores={errores}
           onCasilla={setCursor}
-          className="min-h-0 flex-1"
+          key={`resolver-${fallos}`}
+          className={cn("min-h-0 flex-1", fallos > 0 && "animate-temblor")}
         />
         <Keyboard onLetra={escribir} onBorrar={borrar} />
         <DialogFooter className="sm:justify-between">

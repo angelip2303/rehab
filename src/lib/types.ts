@@ -26,5 +26,4 @@ export interface Nivel {
   /** "vocales", "ninguna" o una lista de letras, p. ej. "AEL" */
   letrasReveladas: string;
   ayudasPorPanel: number;
-  fases: number[];
 }

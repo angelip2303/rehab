@@ -1,11 +1,15 @@
+import { useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { celebrarMision } from "@/lib/celebrar";
 import type { Estado } from "@/lib/game";
 import { nombrePersona } from "@/lib/turns";
 import { COLOR_EQUIPO } from "./colores";
+
+const FILAS_POR_COLUMNA = 5;
 
 interface Props {
   estado: Estado;
@@ -19,44 +23,54 @@ export function Summary({ estado, onOtraRonda, onNuevaSesion }: Props) {
   const concurso = estado.sesion.modo === "concurso";
   const conEquipos = estado.equipos.length > 1;
 
+  useEffect(() => {
+    if (resueltos > 0) celebrarMision();
+  }, [resueltos]);
+  const columnas = estado.equipos.flatMap((e, i) => {
+    const trozos = Math.ceil(e.miembros.length / FILAS_POR_COLUMNA);
+    const tam = Math.ceil(e.miembros.length / trozos);
+    return Array.from({ length: trozos }, (_, t) => ({ equipo: i, miembros: e.miembros.slice(t * tam, (t + 1) * tam) }));
+  });
+
   return (
-    <main className="mx-auto flex min-h-screen max-w-5xl flex-col justify-center gap-6 p-6">
-      <Card>
+    <main className="mx-auto flex h-dvh max-w-7xl flex-col justify-center overflow-hidden p-6">
+      <Card className="max-h-full min-h-0">
         <CardHeader>
-          <CardTitle className="text-3xl">Misión completada</CardTitle>
+          <CardTitle className="text-3xl">Misión completada 🏆</CardTitle>
           <CardDescription className="text-lg">
             El grupo ha resuelto {resueltos} de {total} paneles
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-col gap-6">
+        <CardContent className="flex min-h-0 flex-col gap-6">
           <Progress value={(resueltos / Math.max(1, total)) * 100} className="h-4" />
-          <Table className="text-lg">
-            <TableHeader>
-              <TableRow>
-                <TableHead>Persona</TableHead>
-                {conEquipos && <TableHead>Equipo</TableHead>}
-                <TableHead className="text-right">Jugadas</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {estado.equipos.flatMap((e, i) =>
-                e.miembros.map((m) => (
-                  <TableRow key={m}>
-                    <TableCell>{nombrePersona(estado.sesion.personas, m)}</TableCell>
-                    {conEquipos && (
-                      <TableCell>
-                        <span className="inline-flex items-center gap-2">
-                          <span className="size-3 rounded-full" style={{ background: COLOR_EQUIPO[i] }} />
-                          {e.nombre}
-                        </span>
-                      </TableCell>
-                    )}
-                    <TableCell className="text-right tabular-nums">{estado.participaciones[m]}</TableCell>
+          {/* Participación: una columna por equipo (en trozos de 5 filas) para que todo quepa en una pantalla */}
+          <div className="grid min-h-0 auto-cols-fr grid-flow-col gap-4">
+            {columnas.map(({ equipo, miembros }, c) => (
+              <Table key={c}>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-base">
+                      <span className="inline-flex items-center gap-2">
+                        {conEquipos && (
+                          <span className="size-3 rounded-full" style={{ background: COLOR_EQUIPO[equipo] }} />
+                        )}
+                        {conEquipos ? estado.equipos[equipo].nombre : "Persona"}
+                      </span>
+                    </TableHead>
+                    <TableHead className="text-right text-base">Jugadas</TableHead>
                   </TableRow>
-                )),
-              )}
-            </TableBody>
-          </Table>
+                </TableHeader>
+                <TableBody>
+                  {miembros.map((m) => (
+                    <TableRow key={m}>
+                      <TableCell className="text-lg">{nombrePersona(estado.sesion.personas, m)}</TableCell>
+                      <TableCell className="text-right text-lg tabular-nums">{estado.participaciones[m]}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ))}
+          </div>
           {concurso && (
             <div className="flex flex-wrap gap-2">
               {estado.equipos.map((e, i) => (

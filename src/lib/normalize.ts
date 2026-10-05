@@ -8,12 +8,6 @@ export const FILAS_ABC = [
   "TUVWXYZ".split(""),
 ];
 
-export const FILAS_QWERTY = [
-  "QWERTYUIOP".split(""),
-  "ASDFGHJKLÑ".split(""),
-  "ZXCVBNM".split(""),
-];
-
 const SIN_TILDE: Record<string, string> = {
   Á: "A", À: "A", Ä: "A", Â: "A",
   É: "E", È: "E", Ë: "E", Ê: "E",

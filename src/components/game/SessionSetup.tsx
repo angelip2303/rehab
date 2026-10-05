@@ -2,12 +2,13 @@ import { useMemo, useState } from "react";
 import { MinusIcon, PlusIcon, UsersIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Keyboard } from "@/components/game/Keyboard";
+import { cn } from "@/lib/utils";
 import { borrarPartida } from "@/lib/partida";
 import { cargarSesion, guardarSesion, type Sesion } from "@/lib/session";
 import { crearEquipos, nombrePersona } from "@/lib/turns";
@@ -16,6 +17,8 @@ import type { Modo, Nivel, NivelId, Panel, Tema } from "@/lib/types";
 const MIN_PERSONAS = 2;
 const MAX_PERSONAS = 15;
 const OPCIONES_PANELES = [4, 6, 8, 10];
+/** 0 = jugar todos los paneles disponibles */
+const TODOS = 0;
 const opcion =
   "h-auto px-5 py-3 text-lg data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:hover:bg-primary/90 data-[state=on]:hover:text-primary-foreground";
 
@@ -28,17 +31,17 @@ interface Props {
 export function SessionSetup({ temas, niveles, paneles }: Props) {
   const previa = useMemo(() => (typeof window === "undefined" ? null : cargarSesion()), []);
   const [nivel, setNivel] = useState<NivelId>(previa?.nivel ?? niveles[0].id);
-  const [faseInicial, setFaseInicial] = useState(previa?.faseInicial ?? 1);
   const [temasElegidos, setTemasElegidos] = useState<string[]>(previa?.temas ?? temas.map((t) => t.id));
   const [personas, setPersonas] = useState<string[]>(previa?.personas ?? Array(8).fill(""));
   const [equipos, setEquipos] = useState(previa?.equipos ?? 2);
   const [modo, setModo] = useState<Modo>(previa?.modo ?? "light");
-  const [numPaneles, setNumPaneles] = useState(previa?.paneles ?? 6);
+  const [numPaneles, setNumPaneles] = useState(
+    previa && OPCIONES_PANELES.includes(previa.paneles) ? previa.paneles : TODOS,
+  );
   const [editandoNombres, setEditandoNombres] = useState(false);
 
-  const nivelActual = niveles.find((n) => n.id === nivel)!;
   const disponibles = paneles.filter(
-    (p) => p.nivel === nivel && p.fase >= faseInicial && temasElegidos.includes(p.tema),
+    (p) => p.nivel === nivel && temasElegidos.includes(p.tema),
   ).length;
   const repartos = crearEquipos(personas.length, equipos);
 
@@ -52,12 +55,11 @@ export function SessionSetup({ temas, niveles, paneles }: Props) {
   function empezar() {
     const sesion: Sesion = {
       nivel,
-      faseInicial,
       temas: temasElegidos,
       personas,
       equipos: Math.min(equipos, personas.length),
       modo,
-      paneles: Math.min(numPaneles, disponibles),
+      paneles: numPaneles === TODOS ? disponibles : Math.min(numPaneles, disponibles),
       jugados: [],
     };
     guardarSesion(sesion);
@@ -66,7 +68,7 @@ export function SessionSetup({ temas, niveles, paneles }: Props) {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-7xl flex-col gap-6 p-6">
+    <main className="mx-auto flex h-dvh max-w-7xl flex-col gap-4 overflow-hidden p-6">
       <header className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Panel de palabras</h1>
@@ -77,52 +79,36 @@ export function SessionSetup({ temas, niveles, paneles }: Props) {
         </Button>
       </header>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
+      <div className="grid min-h-0 flex-1 grid-cols-2 grid-rows-2 gap-4">
+        <Card className="min-h-0 gap-4 overflow-hidden py-5">
           <CardHeader>
             <CardTitle className="text-xl">Nivel</CardTitle>
-            <CardDescription>{nivelActual.descripcion}</CardDescription>
+            <CardDescription>Los paneles van de lo más sencillo a lo más complejo dentro de cada nivel</CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-col gap-4">
+          <CardContent className="flex min-h-0 flex-1 flex-col gap-3">
             <ToggleGroup
               type="single"
               variant="outline"
               spacing={2}
               aria-label="Nivel"
+              className="w-full flex-1 items-stretch"
               value={nivel}
               onValueChange={(v) => {
                 if (!v) return;
                 setNivel(v as NivelId);
-                setFaseInicial(1);
               }}
             >
               {niveles.map((n) => (
-                <ToggleGroupItem key={n.id} value={n.id} className={opcion}>
-                  {n.nombre}
+                <ToggleGroupItem key={n.id} value={n.id} className={cn(opcion, "h-full flex-1 flex-col gap-1 py-4 whitespace-normal")}>
+                  <span className="text-xl font-semibold">{n.nombre}</span>
+                  {n.descripcion && <span className="text-sm opacity-80">{n.descripcion}</span>}
                 </ToggleGroupItem>
               ))}
             </ToggleGroup>
-            <div className="flex flex-col gap-2">
-              <Label className="text-base">Empezar en la fase</Label>
-              <ToggleGroup
-                type="single"
-                variant="outline"
-                spacing={2}
-                aria-label="Fase inicial"
-              value={String(faseInicial)}
-                onValueChange={(v) => v && setFaseInicial(Number(v))}
-              >
-                {nivelActual.fases.map((f) => (
-                  <ToggleGroupItem key={f} value={String(f)} className={opcion}>
-                    Fase {f}
-                  </ToggleGroupItem>
-                ))}
-              </ToggleGroup>
-            </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="min-h-0 gap-4 overflow-hidden py-5">
           <CardHeader>
             <CardTitle className="text-xl">Temáticas</CardTitle>
             <CardDescription>Puedes elegir varias</CardDescription>
@@ -147,13 +133,18 @@ export function SessionSetup({ temas, niveles, paneles }: Props) {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="min-h-0 gap-4 overflow-hidden py-5">
           <CardHeader>
             <CardTitle className="text-xl">Grupo</CardTitle>
             <CardDescription>Los equipos se reparten solos y por turnos fijos: todo el mundo participa</CardDescription>
+            <CardAction>
+              <Button variant="outline" size="lg" className="h-12 text-base" onClick={() => setEditandoNombres(true)}>
+                <UsersIcon /> Nombres
+              </Button>
+            </CardAction>
           </CardHeader>
-          <CardContent className="flex flex-col gap-4">
-            <div className="flex flex-wrap items-center gap-6">
+          <CardContent className="flex min-h-0 flex-col gap-3">
+            <div className="flex flex-wrap items-end gap-6">
               <div className="flex flex-col gap-2">
                 <Label className="text-base">Personas</Label>
                 <div className="flex items-center gap-2">
@@ -184,23 +175,20 @@ export function SessionSetup({ temas, niveles, paneles }: Props) {
                 </ToggleGroup>
               </div>
             </div>
-            <div className="grid gap-2 sm:grid-cols-2">
+            <div className="grid min-h-0 grid-cols-2 gap-2">
               {repartos.map((e) => (
-                <div key={e.numero} className="rounded-md border p-3">
-                  <p className="mb-1 font-medium">{repartos.length > 1 ? e.nombre : "Grupo"}</p>
-                  <p className="text-sm text-muted-foreground">
+                <div key={e.numero} className="min-w-0 rounded-md border px-3 py-2">
+                  <p className="text-sm font-medium">{repartos.length > 1 ? e.nombre : "Grupo"}</p>
+                  <p className="line-clamp-2 text-sm text-muted-foreground">
                     {e.miembros.map((m) => nombrePersona(personas, m)).join(", ")}
                   </p>
                 </div>
               ))}
             </div>
-            <Button variant="outline" size="lg" className="h-12 self-start text-base" onClick={() => setEditandoNombres(true)}>
-              <UsersIcon /> Poner nombres (opcional)
-            </Button>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="min-h-0 gap-4 overflow-hidden py-5">
           <CardHeader>
             <CardTitle className="text-xl">Modo y misión</CardTitle>
             <CardDescription>
@@ -209,23 +197,26 @@ export function SessionSetup({ temas, niveles, paneles }: Props) {
                 : "Concurso: cada equipo suma puntos, pero la misión sigue siendo común"}
             </CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-col gap-4">
+          <CardContent className="flex min-h-0 flex-col gap-3">
             <ToggleGroup type="single" variant="outline" spacing={2} aria-label="Modo"
               value={modo} onValueChange={(v) => v && setModo(v as Modo)}>
               <ToggleGroupItem value="light" className={opcion}>Light</ToggleGroupItem>
               <ToggleGroupItem value="concurso" className={opcion}>Concurso</ToggleGroupItem>
             </ToggleGroup>
             <div className="flex flex-col gap-2">
-              <Label className="text-base">Paneles de la misión</Label>
+              <Label className="text-base">¿Cuántos paneles se juegan?</Label>
               <ToggleGroup
                 type="single"
                 variant="outline"
                 spacing={2}
                 aria-label="Paneles de la misión"
-              value={String(numPaneles)}
+                value={String(numPaneles >= disponibles ? TODOS : numPaneles)}
                 onValueChange={(v) => v && setNumPaneles(Number(v))}
               >
-                {OPCIONES_PANELES.map((n) => (
+                <ToggleGroupItem value={String(TODOS)} className={opcion}>
+                  Todos ({disponibles})
+                </ToggleGroupItem>
+                {OPCIONES_PANELES.filter((n) => n < disponibles).map((n) => (
                   <ToggleGroupItem key={n} value={String(n)} className={opcion}>
                     {n}
                   </ToggleGroupItem>
@@ -233,10 +224,8 @@ export function SessionSetup({ temas, niveles, paneles }: Props) {
               </ToggleGroup>
               <p className="text-sm text-muted-foreground">
                 {disponibles === 0
-                  ? "No hay paneles para esta combinación de nivel, fase y temáticas."
-                  : disponibles < numPaneles
-                    ? `Solo hay ${disponibles} paneles disponibles con esta selección; se jugarán todos.`
-                    : `${disponibles} paneles disponibles con esta selección.`}
+                  ? "No hay paneles de este nivel en las temáticas elegidas."
+                  : "La misión del grupo es completar estos paneles, de los más sencillos a los más complejos."}
               </p>
             </div>
           </CardContent>

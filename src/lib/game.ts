@@ -9,19 +9,18 @@ export const PUNTOS_RESOLVER = 3;
 /* ---------- Selección de paneles ---------- */
 
 /**
- * Elige los paneles de la misión: del nivel elegido, de las temáticas elegidas,
- * empezando por la fase inicial y avanzando de fase (progresión gradual).
+ * Elige los paneles de la misión: del nivel elegido y de las temáticas elegidas,
+ * ordenados de la fase 1 en adelante (progresión gradual dentro del nivel).
  * Dentro de una misma fase el orden se baraja para variar entre sesiones.
  */
 export function elegirPaneles(
   todos: Panel[],
-  sesion: Pick<Sesion, "nivel" | "faseInicial" | "temas" | "paneles" | "jugados">,
+  sesion: Pick<Sesion, "nivel" | "temas" | "paneles" | "jugados">,
   aleatorio: () => number = Math.random,
 ): Panel[] {
   const candidatos = todos.filter(
     (p) =>
       p.nivel === sesion.nivel &&
-      p.fase >= sesion.faseInicial &&
       (sesion.temas.length === 0 || sesion.temas.includes(p.tema)) &&
       !sesion.jugados.includes(p.id),
   );
@@ -62,8 +61,13 @@ export type ResultadoPanel = "resuelto" | "mostrado";
 
 export interface EstadoPanel {
   panel: Panel;
-  /** letras ya visibles en el tablero */
+  /** letras ya descubiertas (acertadas, de ayuda o de partida) */
   visibles: string[];
+  /**
+   * Casillas iluminadas que aún no se han destapado: la persona que dinamiza
+   * las va tocando con el lápiz para descubrirlas una a una, como en la ruleta.
+   */
+  porVoltear: number[];
   /** letras tocadas en el teclado (aciertos y fallos) */
   probadas: string[];
   ayudasUsadas: number;
@@ -99,6 +103,7 @@ function nuevoPanel(panel: Panel, nivel: Nivel): EstadoPanel {
   return {
     panel,
     visibles,
+    porVoltear: [],
     probadas: [...visibles],
     ayudasUsadas: 0,
     ayudaTextoVista: false,
@@ -139,12 +144,26 @@ export function letraDeAyuda(ep: EstadoPanel): string | null {
     .sort((a, b) => b.n - a.n || a.l.localeCompare(b.l, "es"))[0].l;
 }
 
+/** Índices de las casillas cuyas letras están en `letras`. */
+export function casillasDe(frase: string, letras: string[]): number[] {
+  return crearTablero(frase)
+    .casillasLetra.filter((c) => letras.includes(c.letra!))
+    .map((c) => c.indice);
+}
+
+function iluminar(ep: EstadoPanel, letras: string[]): number[] {
+  const nuevas = casillasDe(ep.panel.frase, letras).filter((i) => !ep.porVoltear.includes(i));
+  return [...ep.porVoltear, ...nuevas];
+}
+
 export type Accion =
   | { tipo: "letra"; letra: string }
   | { tipo: "ayuda"; nivel: Nivel }
   | { tipo: "resolver"; correcto: boolean }
   | { tipo: "mostrar" }
   | { tipo: "saltarTurno" }
+  | { tipo: "voltear"; indice: number }
+  | { tipo: "voltearTodas" }
   | { tipo: "siguiente"; nivel: Nivel };
 
 function avanzarTurno(e: Estado, puntos = 0): Estado {
@@ -157,8 +176,9 @@ function avanzarTurno(e: Estado, puntos = 0): Estado {
 }
 
 function cerrarPanel(e: Estado, resultado: ResultadoPanel): Estado {
+  const pendientes = letrasPendientes(e.panel);
   const visibles = [...letrasDe(e.panel.panel.frase)];
-  return { ...e, panel: { ...e.panel, visibles, resultado } };
+  return { ...e, panel: { ...e.panel, visibles, porVoltear: iluminar(e.panel, pendientes), resultado } };
 }
 
 export function reducir(e: Estado, a: Accion): Estado {
@@ -168,9 +188,10 @@ export function reducir(e: Estado, a: Accion): Estado {
       if (ep.resultado || ep.probadas.includes(a.letra)) return e;
       const n = ep.visibles.includes(a.letra) ? 0 : apariciones(ep.panel.frase, a.letra);
       const visibles = n > 0 ? [...ep.visibles, a.letra] : ep.visibles;
+      const porVoltear = n > 0 ? iluminar(ep, [a.letra]) : ep.porVoltear;
       let siguiente: Estado = {
         ...e,
-        panel: { ...ep, visibles, probadas: [...ep.probadas, a.letra] },
+        panel: { ...ep, visibles, porVoltear, probadas: [...ep.probadas, a.letra] },
       };
       const completo = letrasPendientes(siguiente.panel).length === 0;
       siguiente = avanzarTurno(siguiente, n + (completo ? PUNTOS_RESOLVER : 0));
@@ -186,6 +207,7 @@ export function reducir(e: Estado, a: Accion): Estado {
       const panel: EstadoPanel = {
         ...ep,
         visibles: [...ep.visibles, letra],
+        porVoltear: iluminar(ep, [letra]),
         probadas: ep.probadas.includes(letra) ? ep.probadas : [...ep.probadas, letra],
         ayudasUsadas: ep.ayudasUsadas + 1,
       };
@@ -201,6 +223,10 @@ export function reducir(e: Estado, a: Accion): Estado {
       return ep.resultado ? e : cerrarPanel(e, "mostrado");
     case "saltarTurno":
       return { ...e, turno: e.turno + 1 };
+    case "voltear":
+      return { ...e, panel: { ...ep, porVoltear: ep.porVoltear.filter((i) => i !== a.indice) } };
+    case "voltearTodas":
+      return { ...e, panel: { ...ep, porVoltear: [] } };
     case "siguiente": {
       if (!ep.resultado) return e;
       const resultados = [...e.resultados, ep.resultado];

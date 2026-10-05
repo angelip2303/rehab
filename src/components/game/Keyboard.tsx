@@ -1,8 +1,6 @@
-import { useState } from "react";
 import { DeleteIcon, SpaceIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FILAS_ABC, FILAS_QWERTY } from "@/lib/normalize";
+import { FILAS_ABC } from "@/lib/normalize";
 import { cn } from "@/lib/utils";
 
 export type EstadoTecla = "libre" | "acierto" | "fallo";
@@ -13,40 +11,36 @@ interface Props {
   onBorrar?: () => void;
   onEspacio?: () => void;
   deshabilitado?: boolean;
+  /** tecla que tiene que temblar (al fallar); `id` cambia en cada fallo para repetir la animación */
+  temblor?: { letra: string; id: number } | null;
   className?: string;
 }
 
-/** Teclado en pantalla para usar con el lápiz de la pizarra (sin teclado físico). */
-export function Keyboard({ onLetra, estadoTecla, onBorrar, onEspacio, deshabilitado, className }: Props) {
-  const [distribucion, setDistribucion] = useState<"abc" | "qwerty">("abc");
-  const filas = distribucion === "abc" ? FILAS_ABC : FILAS_QWERTY;
+/** Teclado en pantalla de la A a la Z para usar con el lápiz de la pizarra (sin teclado físico). */
+export function Keyboard({ onLetra, estadoTecla, onBorrar, onEspacio, deshabilitado, temblor, className }: Props) {
+  const filas = FILAS_ABC;
 
   return (
     <div className={cn("flex flex-col items-center gap-2", className)}>
-      <div className="flex w-full justify-end">
-        <Tabs value={distribucion} onValueChange={(v) => setDistribucion(v as "abc" | "qwerty")}>
-          <TabsList>
-            <TabsTrigger value="abc" className="px-4">ABC…</TabsTrigger>
-            <TabsTrigger value="qwerty" className="px-4">QWE…</TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </div>
       {filas.map((fila, i) => (
         <div key={i} className="flex gap-2">
           {fila.map((letra) => {
             const estado = estadoTecla?.(letra) ?? "libre";
             return (
               <Button
-                key={letra}
+                key={temblor?.letra === letra ? `${letra}-${temblor.id}` : letra}
                 type="button"
-                variant={estado === "acierto" ? "default" : "outline"}
+                variant="outline"
+                data-estado={estado}
                 disabled={deshabilitado || estado !== "libre"}
                 onClick={() => onLetra(letra)}
                 aria-label={`Letra ${letra}`}
                 className={cn(
-                  "size-14 text-2xl font-semibold",
-                  estado === "acierto" && "disabled:opacity-100",
-                  estado === "fallo" && "line-through disabled:opacity-30",
+                  "size-16 border-2 border-neutral-400 text-3xl font-bold text-neutral-950",
+                  estado === "acierto" && "border-emerald-700 bg-emerald-600 text-white disabled:opacity-100",
+                  estado === "fallo" &&
+                    "border-destructive bg-red-100 text-destructive line-through decoration-4 disabled:opacity-100",
+                  temblor?.letra === letra && "animate-temblor",
                 )}
               >
                 {letra}
@@ -54,12 +48,12 @@ export function Keyboard({ onLetra, estadoTecla, onBorrar, onEspacio, deshabilit
             );
           })}
           {i === filas.length - 1 && onEspacio && (
-            <Button type="button" variant="outline" className="h-14 w-28" onClick={onEspacio} aria-label="Espacio" disabled={deshabilitado}>
+            <Button type="button" variant="outline" className="h-16 w-28 border-2 border-neutral-400" onClick={onEspacio} aria-label="Espacio" disabled={deshabilitado}>
               <SpaceIcon className="size-7" />
             </Button>
           )}
           {i === filas.length - 1 && onBorrar && (
-            <Button type="button" variant="secondary" className="h-14 w-28" onClick={onBorrar} aria-label="Borrar" disabled={deshabilitado}>
+            <Button type="button" variant="secondary" className="h-16 w-28" onClick={onBorrar} aria-label="Borrar" disabled={deshabilitado}>
               <DeleteIcon className="size-7" />
             </Button>
           )}

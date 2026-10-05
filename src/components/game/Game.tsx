@@ -1,5 +1,5 @@
-import { useEffect, useReducer, useState } from "react";
-import { EyeIcon, KeyboardIcon, LightbulbIcon, LogOutIcon, SkipForwardIcon, SpellCheckIcon } from "lucide-react";
+import { useEffect, useReducer, useRef, useState } from "react";
+import { CheckIcon, EyeIcon, XIcon, KeyboardIcon, LightbulbIcon, LogOutIcon, SkipForwardIcon, SpellCheckIcon } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,12 +15,15 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { crearEstado, elegirPaneles, reducir, type Estado } from "@/lib/game";
+import { celebrarPanel } from "@/lib/celebrar";
+import { apariciones, crearEstado, elegirPaneles, reducir, type Estado } from "@/lib/game";
+import { vibrarFallo } from "@/lib/feedback";
 import { letrasDe } from "@/lib/normalize";
 import { borrarPartida, cargarPartida, guardarPartida } from "@/lib/partida";
 import { borrarSesion, cargarSesion, guardarSesion, type Sesion } from "@/lib/session";
 import { turnoEn } from "@/lib/turns";
 import type { Nivel, Panel } from "@/lib/types";
+import { cn } from "@/lib/utils";
 import { Board } from "./Board";
 import { Keyboard, type EstadoTecla } from "./Keyboard";
 import { MissionBar } from "./MissionBar";
@@ -54,7 +57,7 @@ export function Game(props: Props) {
 
   if (!estado) {
     return (
-      <main className="flex min-h-screen items-center justify-center p-6">
+      <main className="flex h-dvh items-center justify-center overflow-hidden p-6">
         <Card className="max-w-lg">
           <CardHeader>
             <CardTitle className="text-2xl">No hay ninguna sesión en marcha</CardTitle>
@@ -100,8 +103,36 @@ function Partida({
   const [estado, despachar] = useReducer(reducir, inicial);
   const [resolviendo, setResolviendo] = useState(false);
   const [tecladoVisible, setTecladoVisible] = useState(true);
+  /** última letra jugada, para el feedback de acierto/fallo */
+  const [jugada, setJugada] = useState<{ letra: string; n: number; id: number } | null>(null);
+  const [temblorPanel, setTemblorPanel] = useState(0);
+
+  function jugarLetra(letra: string) {
+    const n = apariciones(estado.panel.panel.frase, letra);
+    setJugada({ letra, n, id: Date.now() });
+    if (n === 0) {
+      vibrarFallo();
+      setTemblorPanel((t) => t + 1);
+    }
+    despachar({ tipo: "letra", letra });
+  }
+
+  // El aviso de la última jugada desaparece a los pocos segundos y al cambiar de panel.
+  useEffect(() => {
+    if (!jugada) return;
+    const t = setTimeout(() => setJugada(null), 2500);
+    return () => clearTimeout(t);
+  }, [jugada]);
+  useEffect(() => setJugada(null), [estado.actual]);
 
   useEffect(() => guardarPartida(estado), [estado]);
+
+  // Confeti solo cuando el grupo resuelve el panel (no al mostrar la solución ni al recargar).
+  const resultadoAnterior = useRef(estado.panel.resultado);
+  useEffect(() => {
+    if (estado.panel.resultado === "resuelto" && resultadoAnterior.current !== "resuelto") celebrarPanel();
+    resultadoAnterior.current = estado.panel.resultado;
+  }, [estado.panel.resultado]);
 
   const nivel = niveles.find((n) => n.id === estado.sesion.nivel)!;
   const { panel } = estado;
@@ -129,12 +160,12 @@ function Partida({
     !panel.probadas.includes(letra) ? "libre" : enFrase.has(letra) ? "acierto" : "fallo";
 
   return (
-    <main className="flex h-screen flex-col gap-3 p-4">
+    <main className="flex h-dvh flex-col gap-3 overflow-hidden p-4">
       <header className="flex flex-wrap items-center gap-4">
         <MissionBar hechos={hechos} total={estado.paneles.length} />
         {estado.sesion.modo === "concurso" && <Scoreboard equipos={estado.equipos} puntos={estado.puntos} />}
         <Badge variant="outline" className="px-3 py-1 text-base">
-          {nivel.nombre} · Fase {panel.panel.fase}
+          {nivel.nombre}
         </Badge>
         <AlertDialog>
           <AlertDialogTrigger asChild>
@@ -164,14 +195,21 @@ function Partida({
 
       <Card className="gap-1 py-4">
         <CardContent className="text-center">
-          <p className="text-3xl font-semibold">{panel.panel.pista}</p>
+          <p className="text-4xl font-bold">{panel.panel.pista}</p>
           {panel.ayudaTextoVista && panel.panel.ayuda && (
-            <p className="mt-1 text-xl text-muted-foreground">{panel.panel.ayuda}</p>
+            <p className="mt-1 text-2xl text-muted-foreground">💡 {panel.panel.ayuda}</p>
           )}
         </CardContent>
       </Card>
 
-      <Board frase={panel.panel.frase} visibles={panel.visibles} className="min-h-0 flex-1" />
+      <Board
+        key={`tablero-${temblorPanel}`}
+        frase={panel.panel.frase}
+        visibles={panel.visibles}
+        porVoltear={panel.porVoltear ?? []}
+        onVoltear={(indice) => despachar({ tipo: "voltear", indice })}
+        className={cn("min-h-0 flex-1", temblorPanel > 0 && "animate-temblor")}
+      />
 
       <Separator />
 
@@ -179,19 +217,46 @@ function Partida({
         <div className="flex flex-col gap-3">
           {terminado ? (
             <span className="text-2xl font-semibold">
-              {panel.resultado === "resuelto" ? "¡Panel resuelto!" : "Solución"}
+              {panel.resultado === "resuelto" ? "¡Panel resuelto! 🎉" : "Solución 👀"}
             </span>
           ) : (
-            <TurnBanner turno={turno} equipos={estado.equipos} personas={estado.sesion.personas} />
+            <div className="flex items-center gap-4">
+              <TurnBanner turno={turno} equipos={estado.equipos} personas={estado.sesion.personas} />
+              {jugada && (
+                <Badge
+                  key={jugada.id}
+                  role="status"
+                  className={cn(
+                    "animate-in fade-in zoom-in-95 gap-2 px-4 py-1.5 text-xl font-bold",
+                    jugada.n > 0 ? "bg-emerald-600 text-white" : "bg-destructive text-white",
+                  )}
+                >
+                  {jugada.n > 0 ? <CheckIcon className="size-5" /> : <XIcon className="size-5" />}
+                  {jugada.n > 0 ? `Hay ${jugada.n} ${jugada.letra}` : `No hay ninguna ${jugada.letra}`}
+                </Badge>
+              )}
+            </div>
           )}
           <div className="flex flex-wrap gap-2">
+            {(panel.porVoltear ?? []).length > 0 && (
+              <Button variant="outline" size="lg" className="h-14 px-6 text-lg" onClick={() => despachar({ tipo: "voltearTodas" })}>
+                <EyeIcon className="size-6" /> Destapar todas ({panel.porVoltear.length})
+              </Button>
+            )}
             {terminado ? (
               <Button size="lg" className="h-16 px-10 text-2xl" onClick={() => despachar({ tipo: "siguiente", nivel })}>
                 {estado.actual + 1 < estado.paneles.length ? "Siguiente panel" : "Ver resumen"}
               </Button>
             ) : (
               <>
-                <Button size="lg" className="h-14 px-6 text-lg" onClick={() => setResolviendo(true)}>
+                <Button
+                  size="lg"
+                  className="h-14 px-6 text-lg"
+                  onClick={() => {
+                    despachar({ tipo: "voltearTodas" });
+                    setResolviendo(true);
+                  }}
+                >
                   <SpellCheckIcon className="size-6" /> Resolver
                 </Button>
                 <Button
@@ -231,7 +296,11 @@ function Partida({
 
         <div className="flex items-end gap-2">
           {tecladoVisible && !terminado && (
-            <Keyboard estadoTecla={estadoTecla} onLetra={(letra) => despachar({ tipo: "letra", letra })} />
+            <Keyboard
+              estadoTecla={estadoTecla}
+              onLetra={jugarLetra}
+              temblor={jugada && jugada.n === 0 ? { letra: jugada.letra, id: jugada.id } : null}
+            />
           )}
           {!terminado && (
             <Button

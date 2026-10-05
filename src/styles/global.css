@@ -16,7 +16,7 @@
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
+  --muted-foreground: oklch(0.42 0 0);
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
@@ -91,8 +91,9 @@
     @apply border-border outline-ring/50;
   }
   html {
-    /* Pizarra interactiva: todo escala con el tamaño de pantalla (Tailwind usa rem). */
-    font-size: clamp(16px, 1.15vw, 26px);
+    /* Pizarra interactiva: todo escala con la pantalla (Tailwind usa rem) para que
+       cada vista quepa en una sola pantalla, como una diapositiva. */
+    font-size: clamp(12px, min(1.15vw, 2vh), 26px);
   }
   body {
     @apply bg-background text-foreground;
@@ -100,4 +101,20 @@
     -webkit-user-select: none;
     user-select: none;
   }
+}
+
+/* Feedback de fallo: un temblor corto y suave */
+@theme {
+  --animate-temblor: temblor 0.45s ease-in-out;
+  @keyframes temblor {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-temblor { animation: none; }
 }

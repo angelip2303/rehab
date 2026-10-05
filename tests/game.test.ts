@@ -3,15 +3,15 @@ import { crearEstado, elegirPaneles, letraDeAyuda, propuestaCorrecta, reducir } 
 import type { Sesion } from "../src/lib/session";
 import type { Nivel, Panel } from "../src/lib/types";
 
-const facil: Nivel = { id: "facil", nombre: "Fácil", letrasReveladas: "vocales", ayudasPorPanel: 2, fases: [1, 2] };
-const dificil: Nivel = { id: "dificil", nombre: "Difícil", letrasReveladas: "ninguna", ayudasPorPanel: 1, fases: [1] };
+const facil: Nivel = { id: "facil", nombre: "Fácil", letrasReveladas: "vocales", ayudasPorPanel: 2 };
+const dificil: Nivel = { id: "dificil", nombre: "Difícil", letrasReveladas: "ninguna", ayudasPorPanel: 1 };
 
 const panel = (id: string, frase: string, extra: Partial<Panel> = {}): Panel => ({
   id, tema: "t", frase, pista: "pista", nivel: "facil", fase: 1, ...extra,
 });
 
 const sesion = (extra: Partial<Sesion> = {}): Sesion => ({
-  nivel: "facil", faseInicial: 1, temas: [], personas: ["Ana", "Luis", "Eva", "Juan"],
+  nivel: "facil", temas: [], personas: ["Ana", "Luis", "Eva", "Juan"],
   equipos: 2, modo: "concurso", paneles: 2, jugados: [], ...extra,
 });
 
@@ -30,6 +30,22 @@ describe("partida", () => {
     e = reducir(e, { tipo: "letra", letra: "Z" });
     expect(e.puntos).toEqual([2, 0]);
     expect(e.participaciones).toEqual([1, 1, 0, 0]);
+  });
+
+  it("al acertar, las casillas se iluminan y se destapan una a una con el lápiz", () => {
+    let e = crearEstado(sesion(), [panel("1", "Pan con pan")], dificil);
+    e = reducir(e, { tipo: "letra", letra: "N" });
+    expect(e.panel.porVoltear).toEqual([2, 5, 8]);
+    e = reducir(e, { tipo: "voltear", indice: 5 });
+    expect(e.panel.porVoltear).toEqual([2, 8]);
+    e = reducir(e, { tipo: "voltearTodas" });
+    expect(e.panel.porVoltear).toEqual([]);
+  });
+
+  it("mostrar la solución ilumina solo las casillas que faltaban", () => {
+    let e = crearEstado(sesion(), [panel("1", "Sol")], facil);
+    e = reducir(e, { tipo: "mostrar" });
+    expect(e.panel.porVoltear).toEqual([0, 2]);
   });
 
   it("en modo light no se suman puntos", () => {
@@ -91,8 +107,8 @@ describe("elegirPaneles", () => {
     expect(elegidos.every((p) => p.nivel === "facil" && p.tema === "t")).toBe(true);
   });
 
-  it("no repite paneles ya jugados y respeta la fase inicial", () => {
-    const elegidos = elegirPaneles(todos, { ...sesion(), temas: [], faseInicial: 2, paneles: 5, jugados: ["b1"] });
-    expect(elegidos.map((p) => p.id)).toEqual(["b2"]);
+  it("no repite paneles ya jugados", () => {
+    const elegidos = elegirPaneles(todos, { ...sesion(), temas: ["t"], paneles: 5, jugados: ["a1", "b1"] });
+    expect(elegidos.map((p) => p.id)).toEqual(["a2", "b2"]);
   });
 });

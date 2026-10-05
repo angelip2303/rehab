@@ -12,7 +12,7 @@ niveles Fácil / Moderado / Difícil con fases progresivas.
 ## Cómo se juega
 
 1. **Configuración**: nivel y fase inicial, temáticas, nº de personas y equipos (nombres opcionales),
-   modo y nº de paneles de la misión. Pulsar **¡A jugar!**.
+   modo y cuántos paneles se juegan (por defecto todos). Pulsar **¡A jugar!**.
 2. **Panel**: arriba la pista; abajo se indica a quién le toca. La persona de turno toca una letra en el
    teclado de pantalla y se destapan todas sus apariciones. Acierte o no, el turno pasa a la siguiente persona.
    - **Resolver**: se rellena la frase casilla a casilla con el teclado y se pulsa *Comprobar*.
