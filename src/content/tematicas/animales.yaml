@@ -6,7 +6,7 @@ icono: "🐾"
 paneles:
   # ---------- FÁCIL ----------
   - frase: Ratón
-    pista: Pequeño animal al que le gusta el queso
+    pista: Roedor al que le gusta el queso
     nivel: facil
     ayuda: Le persigue el gato
   - frase: Perro
@@ -16,20 +16,13 @@ paneles:
   - frase: Gato negro
     pista: Dicen que trae mala suerte si se cruza
     nivel: facil
-  - frase: Vaca lechera
-    pista: Animal de granja que nos da leche
-    nivel: facil
-    ayuda: Hace muu
   - frase: El burro de la granja
     pista: Animal de orejas largas que rebuzna
     nivel: facil
   - frase: La gallina pone huevos
     pista: Lo que hace cada día un ave del corral
     nivel: facil
-  - frase: La gaviota vuela libre
-    pista: Las aves son libres
-    nivel: facil
-
+    
   # ---------- MODERADO ----------
   - frase: Elefante africano
     pista: El animal terrestre más grande
