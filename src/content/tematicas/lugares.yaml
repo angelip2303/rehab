@@ -55,3 +55,9 @@ paneles:
   - frase: El monasterio de El Escorial
     pista: Lo mandó construir Felipe II
     nivel: dificil
+  - frase: Torrecerredo
+    pista: Pico más alto de Asturias
+    nivel: dificil
+  - frase: Nalón, Sella, Navia y Esva 
+    pista: Ríos de Asturias
+    nivel: dificil
