@@ -18,9 +18,6 @@ paneles:
   - frase: La estación de tren
     pista: Desde aquí salen los viajeros sobre raíles
     nivel: facil
-  - frase: El centro de salud
-    pista: Donde nos atiende el médico de cabecera
-    nivel: facil
 
   # ---------- MODERADO ----------
   - frase: La Puerta del Sol
