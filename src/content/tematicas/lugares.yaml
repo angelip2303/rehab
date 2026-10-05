@@ -41,6 +41,9 @@ paneles:
   - frase: Monte Naranco
     pista: Situado en Oviedo
     nivel: moderado
+  - frase: La senda del Oso
+    pista: Camino natural cerca de Teverga 
+    nivel: moderado
 
   # ---------- DIFÍCIL ----------
   - frase: Todos los caminos llevan a Roma
