@@ -26,6 +26,9 @@ paneles:
   - frase: La gallina pone huevos
     pista: Lo que hace cada día un ave del corral
     nivel: facil
+  - frase: La gaviota vuela libre
+    pista: Las aves son libres
+    nivel: facil
 
   # ---------- MODERADO ----------
   - frase: Elefante africano
