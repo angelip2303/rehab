@@ -13,6 +13,14 @@ paneles:
     pista: Diosa del agua
     nivel: facil
     ayuda: Da nombre a una montaña, una isla y un río
+  - frase: Bruxa
+    pista: Tiene una escoba y un caldero
+    nivel: facil
+    ayuda: Hace magia
+  - frase: Trasgu
+    pista: Duende de personalidad traviesa y espíritu inquieto
+    nivel: facil
+    ayuda: Tiene un agujero en la mano izquierda
   
   # ---------- MODERADO ----------
   - frase: Nuberu
@@ -23,8 +31,13 @@ paneles:
     pista: Cuerpo de serpiente y cabeza de gallo
     nivel: moderado
     ayuda: Tener un enfado muy grande
+  - frase: Cuélebre
+    pista: Serpiente gigante que custodia tesoros
+    nivel: moderado
+    ayuda: Canción de Victor Manuel
 
   # ---------- DIFÍCIL ----------
   - frase: Diañu Burlón
     pista: Representa al macho cabrío y al diablo
     nivel: dificil
+
