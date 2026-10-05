@@ -244,7 +244,7 @@ function Partida({
                 <Badge
                   key={jugada.id}
                   role="status"
-                  className="animate-in fade-in zoom-in-95 gap-2 bg-emerald-600 px-4 py-1.5 text-xl font-bold text-white"
+                  className="animate-in fade-in zoom-in-95 gap-2 bg-nord14 px-4 py-1.5 text-xl font-bold text-nord0"
                 >
                   <CheckIcon className="size-5" />
                   Hay {jugada.n} {jugada.letra}
@@ -258,7 +258,7 @@ function Partida({
               <Button
                 variant="outline"
                 size="lg"
-                className="h-14 border-2 border-amber-600 bg-amber-300 px-6 text-lg font-semibold text-neutral-950 hover:bg-amber-200"
+                className="h-14 border-2 border-nord12 bg-nord13 px-6 text-lg font-semibold text-nord0 hover:bg-nord13/80"
                 onClick={() => despachar({ tipo: "voltearTodas" })}
               >
                 <SparklesIcon className="size-6" /> Destapar las iluminadas ({panel.porVoltear.length})

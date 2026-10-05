@@ -36,10 +36,10 @@ export function Keyboard({ onLetra, estadoTecla, onBorrar, onEspacio, deshabilit
                 onClick={() => onLetra(letra)}
                 aria-label={`Letra ${letra}`}
                 className={cn(
-                  "size-16 border-2 border-neutral-400 text-3xl font-bold text-neutral-950",
-                  estado === "acierto" && "border-emerald-700 bg-emerald-600 text-white disabled:opacity-100",
+                  "size-16 border-2 border-nord3/50 bg-nord6 text-3xl font-bold text-nord0",
+                  estado === "acierto" && "border-nord14 bg-nord14 text-nord0 disabled:opacity-100",
                   estado === "fallo" &&
-                    "border-destructive bg-red-100 text-destructive line-through decoration-4 disabled:opacity-100",
+                    "border-nord11 bg-nord11/15 text-nord11 line-through decoration-4 disabled:opacity-100",
                   temblor?.letra === letra && "animate-temblor",
                 )}
               >
@@ -48,7 +48,7 @@ export function Keyboard({ onLetra, estadoTecla, onBorrar, onEspacio, deshabilit
             );
           })}
           {i === filas.length - 1 && onEspacio && (
-            <Button type="button" variant="outline" className="h-16 w-28 border-2 border-neutral-400" onClick={onEspacio} aria-label="Espacio" disabled={deshabilitado}>
+            <Button type="button" variant="outline" className="h-16 w-28 border-2 border-nord3/50 bg-nord6" onClick={onEspacio} aria-label="Espacio" disabled={deshabilitado}>
               <SpaceIcon className="size-7" />
             </Button>
           )}

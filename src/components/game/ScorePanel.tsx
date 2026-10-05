@@ -42,7 +42,7 @@ export function ScorePanel({ estado, turno }: { estado: Estado; turno: Turno }) 
                   key={m}
                   className={cn(
                     "grid grid-cols-[1fr_auto_auto] items-center gap-x-3 rounded-md px-1 text-lg",
-                    leToca && "bg-amber-100 font-bold",
+                    leToca && "bg-nord13/40 font-bold",
                   )}
                 >
                   <span className="truncate">

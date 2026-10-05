@@ -1,7 +1,8 @@
 import confetti from "canvas-confetti";
 
 const EMOJIS = ["🎉", "✨", "🔥", "💅", "🥂", "💥"];
-const COLORES = ["#0284c7", "#f97316", "#14b8a6", "#eab308", "#ec4899", "#ffffff"];
+// Nord: frost y aurora
+const COLORES = ["#5e81ac", "#88c0d0", "#bf616a", "#d08770", "#ebcb8b", "#a3be8c", "#b48ead"];
 
 const comun = { disableForReducedMotion: true, zIndex: 100 } as const;
 

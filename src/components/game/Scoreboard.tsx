@@ -37,7 +37,7 @@ function PuntosEquipo({ nombre, color, puntos }: { nombre: string; color: string
       {suma && (
         <span
           key={`mas-${suma.id}`}
-          className="absolute -top-3 -right-3 animate-in fade-in slide-in-from-bottom-3 rounded-full bg-emerald-600 px-2 text-base font-bold text-white duration-300"
+          className="absolute -top-3 -right-3 animate-in fade-in slide-in-from-bottom-3 rounded-full bg-nord14 px-2 text-base font-bold text-nord0 duration-300"
           aria-live="polite"
         >
           +{suma.n}

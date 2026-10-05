@@ -30,7 +30,7 @@ export function Board({ frase, visibles, porVoltear = [], onVoltear, propuesta, 
   return (
     <div className={cn("[container-type:size] flex size-full items-center justify-center", className)}>
       <div
-        className="grid gap-[calc(var(--casilla)*0.08)] rounded-2xl border-4 border-neutral-300 bg-neutral-200 p-[calc(var(--casilla)*0.18)] shadow-md"
+        className="grid gap-[calc(var(--casilla)*0.08)] rounded-2xl border-4 border-nord3/30 bg-nord4 p-[calc(var(--casilla)*0.18)] shadow-md"
         style={
           {
             "--casilla": "min(calc(100cqw / 15.2), calc(100cqh / 4.9 / 1.3))",
@@ -45,7 +45,7 @@ export function Board({ frase, visibles, porVoltear = [], onVoltear, propuesta, 
           fila.map((casilla, c) => {
             const clave = `${f}-${c}`;
             if (casilla === undefined) return <div key={clave} />;
-            if (casilla === null) return <div key={clave} className="rounded-md bg-sky-600 shadow-inner" aria-hidden />;
+            if (casilla === null) return <div key={clave} className="rounded-md bg-nord10 shadow-inner" aria-hidden />;
 
             const esLetra = casilla.letra !== null;
             const iluminada = esLetra && porVoltear.includes(casilla.indice);
@@ -70,11 +70,11 @@ export function Board({ frase, visibles, porVoltear = [], onVoltear, propuesta, 
                       : undefined
                 }
                 className={cn(
-                  "flex items-center justify-center rounded-md border-[3px] border-neutral-500 bg-white font-bold text-neutral-950 shadow transition-colors",
-                  activa && "border-sky-700 ring-4 ring-sky-400",
+                  "flex items-center justify-center rounded-md border-[3px] border-nord3 bg-nord6 font-bold text-nord0 shadow transition-colors",
+                  activa && "border-nord10 ring-4 ring-nord8",
                   iluminada &&
-                    "cursor-pointer border-amber-600 bg-amber-300 shadow-[0_0_calc(var(--casilla)*0.35)_rgb(251_191_36)] animate-pulse",
-                  error && "border-destructive bg-red-100 text-destructive",
+                    "cursor-pointer border-nord12 bg-nord13 shadow-[0_0_calc(var(--casilla)*0.35)_var(--color-nord13)] animate-pulse",
+                  error && "border-nord11 bg-nord11/15 text-nord11",
                 )}
                 style={{ fontSize: "calc(var(--casilla) * 0.7)" }}
               >
