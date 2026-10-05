@@ -235,13 +235,14 @@ export function SessionSetup({ temas, niveles, paneles }: Props) {
                     <span className="size-3 shrink-0 rounded-full" style={{ background: COLOR_EQUIPO[i] }} />
                     {repartos.length > 1 ? e.nombre : "Grupo"}
                   </p>
-                  <div className="flex flex-wrap gap-1">
+                  {/* nombres en rejilla compacta: con 20 personas sigue cabiendo sin estirar la tarjeta */}
+                  <ul className="grid grid-cols-[repeat(auto-fill,minmax(6.5rem,1fr))] gap-x-2 text-sm leading-snug">
                     {e.miembros.map((m) => (
-                      <Badge key={m} variant="secondary" className="text-sm whitespace-normal">
+                      <li key={m} className="break-words">
                         {nombrePersona(personas, m)}
-                      </Badge>
+                      </li>
                     ))}
-                  </div>
+                  </ul>
                 </div>
               ))}
             </div>
@@ -312,7 +313,7 @@ export function SessionSetup({ temas, niveles, paneles }: Props) {
                   <>
                     <strong>Misión:</strong> resolver {totalMision} {totalMision === 1 ? "panel" : "paneles"} entre todo el
                     grupo, de lo más sencillo a lo más complejo
-                    {modo === "concurso" ? " · los equipos suman puntos" : ""}.
+                    {modo === "concurso" ? ", mientras cada equipo va sumando sus puntos" : ""}.
                   </>
                 )}
               </p>

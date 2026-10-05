@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import type { Equipo } from "@/lib/turns";
+import { cn } from "@/lib/utils";
 import { COLOR_EQUIPO } from "./colores";
 
-/** Marcador compacto de la cabecera; al sumar puntos aparece un «+N» animado junto al equipo. */
+/** Marcador compacto de la cabecera; el equipo que suma puntos da un pequeño salto. */
 export function Scoreboard({ equipos, puntos }: { equipos: Equipo[]; puntos: number[] }) {
   return (
     <div className="flex gap-2">
@@ -16,33 +17,22 @@ export function Scoreboard({ equipos, puntos }: { equipos: Equipo[]; puntos: num
 
 function PuntosEquipo({ nombre, color, puntos }: { nombre: string; color: string; puntos: number }) {
   const anterior = useRef(puntos);
-  const [suma, setSuma] = useState<{ n: number; id: number } | null>(null);
+  const [salto, setSalto] = useState(0);
 
   useEffect(() => {
-    const n = puntos - anterior.current;
+    if (puntos > anterior.current) setSalto((s) => s + 1);
     anterior.current = puntos;
-    if (n <= 0) return;
-    setSuma({ n, id: Date.now() });
-    const t = setTimeout(() => setSuma(null), 1800);
-    return () => clearTimeout(t);
   }, [puntos]);
 
   return (
-    <Badge variant="secondary" className="relative gap-2 border-2 px-3 py-1 text-lg">
+    <Badge
+      key={salto}
+      variant="secondary"
+      className={cn("gap-2 border-2 px-3 py-1 text-lg", salto > 0 && "animate-puntos")}
+    >
       <span className="size-4 rounded-full" style={{ background: color }} />
       {nombre}
-      <span key={suma?.id} className={suma ? "animate-in zoom-in-150 font-bold tabular-nums duration-500" : "font-bold tabular-nums"}>
-        {puntos}
-      </span>
-      {suma && (
-        <span
-          key={`mas-${suma.id}`}
-          className="absolute -top-3 -right-3 animate-in fade-in slide-in-from-bottom-3 rounded-full bg-nord14 px-2 text-base font-bold text-nord0 duration-300"
-          aria-live="polite"
-        >
-          +{suma.n}
-        </span>
-      )}
+      <span className="font-bold tabular-nums">{puntos}</span>
     </Badge>
   );
 }

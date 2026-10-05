@@ -44,7 +44,7 @@ test("configurar una sesión, jugar y resolver un panel", async ({ page }) => {
     const antes = await page.getByRole("button", { name: "Resolver" }).boundingBox();
     await page.getByRole("button", { name: `Letra ${primera}`, exact: true }).click();
     // los botones de abajo no se mueven aunque aparezca «Destapar las iluminadas»
-    await expect(page.getByRole("button", { name: /Destapar las iluminadas/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Destapar las iluminadas" })).toBeEnabled();
     expect(await page.getByRole("button", { name: "Resolver" }).boundingBox()).toEqual(antes);
     // las casillas acertadas se iluminan y se destapan tocándolas una a una
     const iluminadas = page.locator("[data-iluminada]");
@@ -84,11 +84,18 @@ test("configurar una sesión, jugar y resolver un panel", async ({ page }) => {
   await expect(page.getByText("¡Panel resuelto!")).toBeVisible();
   await expect(page.getByText("1 / 4")).toBeVisible();
 
-  // Ver solución del resto para llegar al resumen
+  // El resto se pasa viendo la solución
+  // El ojo enseña la solución sin resolver el panel; al quitarlo se sigue jugando
+  await page.getByRole("button", { name: /Siguiente panel/ }).click();
+  const ojo = page.getByRole("button", { name: "Ver solución" });
+  const ocultasAntes = await page.locator('[data-visible="false"][data-letra]').count();
+  await ojo.click();
+  await expect(page.locator('[data-visible="false"][data-letra]')).toHaveCount(0);
+  await ojo.click();
+  await expect(page.locator('[data-visible="false"][data-letra]')).toHaveCount(ocultasAntes);
   for (let i = 0; i < 3; i++) {
-    await page.getByRole("button", { name: /Siguiente panel/ }).click();
-    await page.getByRole("button", { name: "Ver solución" }).click();
-    await page.getByRole("alertdialog").getByRole("button", { name: "Mostrar" }).click();
+    if (i > 0) await page.getByRole("button", { name: /Siguiente panel/ }).click();
+    await ojo.click();
   }
   await page.getByRole("button", { name: "Ver resumen" }).click();
   await expect(page.getByText("Misión completada")).toBeVisible();
@@ -103,6 +110,16 @@ for (const viewport of [{ width: 1366, height: 768 }, { width: 1280, height: 720
     for (let i = 0; i < 15; i++) await page.getByRole("button", { name: "Una persona más" }).click();
     await expect(page.getByRole("button", { name: "Una persona más" })).toBeEnabled();
     await expect(page.getByText("20", { exact: true })).toBeVisible();
+    // las tarjetas de la configuración no se estiran al añadir personas
+    const altoGrupo = () => page.locator("[data-slot=card]", { hasText: "Grupo" }).first().evaluate((el) => el.getBoundingClientRect().height);
+    await page.reload();
+    await page.getByRole("button", { name: "Una persona menos" }).waitFor();
+    const altoInicial = await altoGrupo();
+    for (let i = 0; i < 12; i++) await page.getByRole("button", { name: "Una persona más" }).click();
+    for (const equipos of ["4", "3", "2", "Todo el grupo"]) {
+      await page.getByRole("radiogroup", { name: "Equipos" }).getByRole("radio", { name: equipos, exact: true }).click();
+      expect(Math.abs((await altoGrupo()) - altoInicial)).toBeLessThan(2);
+    }
     for (const equipos of ["4", "3", "Todo el grupo"]) {
       await page.getByRole("radiogroup", { name: "Equipos" }).getByRole("radio", { name: equipos, exact: true }).click();
       await sinScroll(page);
@@ -116,7 +133,6 @@ for (const viewport of [{ width: 1366, height: 768 }, { width: 1280, height: 720
     await sinScroll(page);
     for (let i = 0; i < 4; i++) {
       await page.getByRole("button", { name: "Ver solución" }).click();
-      await page.getByRole("alertdialog").getByRole("button", { name: "Mostrar" }).click();
       await page.getByRole("button", { name: /Siguiente panel|Ver resumen/ }).click();
     }
     await expect(page.getByText("Misión completada")).toBeVisible();

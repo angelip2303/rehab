@@ -1,5 +1,5 @@
 import { useEffect, useReducer, useRef, useState } from "react";
-import { EyeIcon, SparklesIcon, TrophyIcon, KeyboardIcon, LightbulbIcon, LogOutIcon, SkipForwardIcon, SpellCheckIcon } from "lucide-react";
+import { EyeIcon, EyeOffIcon, SparklesIcon, TrophyIcon, KeyboardIcon, LightbulbIcon, LogOutIcon, SkipForwardIcon, SpellCheckIcon } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,6 +29,7 @@ import { Keyboard, type EstadoTecla } from "./Keyboard";
 import { MissionBar } from "./MissionBar";
 import { Scoreboard } from "./Scoreboard";
 import { ScorePanel } from "./ScorePanel";
+import { Toggle } from "@/components/ui/toggle";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { SolveDialog } from "./SolveDialog";
 import { Summary } from "./Summary";
@@ -108,6 +109,8 @@ function Partida({
   /** última letra jugada, para el temblor de la tecla al fallar */
   const [jugada, setJugada] = useState<{ letra: string; n: number; id: number } | null>(null);
   const [temblorPanel, setTemblorPanel] = useState(0);
+  /** «ojo»: enseña la solución en el tablero sin dar el panel por resuelto */
+  const [verSolucion, setVerSolucion] = useState(false);
 
   function jugarLetra(letra: string) {
     const n = apariciones(estado.panel.panel.frase, letra);
@@ -125,7 +128,10 @@ function Partida({
     const t = setTimeout(() => setJugada(null), 2500);
     return () => clearTimeout(t);
   }, [jugada]);
-  useEffect(() => setJugada(null), [estado.actual]);
+  useEffect(() => {
+    setJugada(null);
+    setVerSolucion(false);
+  }, [estado.actual]);
 
   useEffect(() => guardarPartida(estado), [estado]);
 
@@ -146,6 +152,8 @@ function Partida({
   const terminado = panel.resultado !== null;
   const ayudasRestantes = nivel.ayudasPorPanel - panel.ayudasUsadas;
   const hechos = estado.resultados.length + (terminado ? 1 : 0);
+  const porVoltear = panel.porVoltear ?? [];
+  const espiando = verSolucion && !terminado;
 
   if (estado.terminado) {
     return (
@@ -229,10 +237,41 @@ function Partida({
           key={`tablero-${temblorPanel}`}
           frase={panel.panel.frase}
           visibles={panel.visibles}
-          porVoltear={panel.porVoltear ?? []}
+          porVoltear={porVoltear}
+          solucion={espiando}
           onVoltear={(indice) => despachar({ tipo: "voltear", indice })}
           className={cn("min-h-0 min-w-0 flex-1", temblorPanel > 0 && "animate-temblor")}
         />
+        {/* Acciones sobre el tablero: siempre en el mismo sitio, solo con icono */}
+        <div className="flex flex-col justify-center gap-3">
+          <Toggle
+            variant="outline"
+            pressed={espiando}
+            onPressedChange={setVerSolucion}
+            disabled={terminado}
+            aria-label="Ver solución"
+            className="size-16 border-2 data-[state=on]:border-nord10 data-[state=on]:bg-nord10 data-[state=on]:text-nord6 data-[state=on]:hover:bg-nord10/90 data-[state=on]:hover:text-nord6 [&_svg:not([class*='size-'])]:size-8"
+          >
+            {espiando ? <EyeOffIcon /> : <EyeIcon />}
+          </Toggle>
+          <Button
+            variant="outline"
+            aria-label="Destapar las iluminadas"
+            disabled={porVoltear.length === 0 || espiando}
+            onClick={() => despachar({ tipo: "voltearTodas" })}
+            className={cn(
+              "relative size-16 border-2 [&_svg:not([class*='size-'])]:size-8",
+              porVoltear.length > 0 && "border-nord12 bg-nord13 text-nord0 hover:bg-nord13/80",
+            )}
+          >
+            <SparklesIcon />
+            {porVoltear.length > 0 && (
+              <span className="absolute -top-2 -right-2 flex size-7 items-center justify-center rounded-full bg-nord12 text-sm font-bold text-nord6">
+                {porVoltear.length}
+              </span>
+            )}
+          </Button>
+        </div>
       </div>
 
       <Separator />
@@ -248,13 +287,20 @@ function Partida({
                   : "¡Resuelto! Destapad el panel ✨"}
             </span>
           ) : (
-            <div className="flex h-14 items-center gap-4">
+            <div className={cn("flex h-14 items-center gap-4", espiando && "invisible")}>
               <TurnBanner turno={turno} equipos={estado.equipos} personas={estado.sesion.personas} />
             </div>
           )}
           <div className="flex h-16 items-center gap-2">
-            {terminado ? (
-              <Button size="lg" className="h-16 px-8 text-xl" onClick={() => despachar({ tipo: "siguiente", nivel })}>
+            {terminado || espiando ? (
+              <Button
+                size="lg"
+                className="h-16 px-8 text-xl"
+                onClick={() => {
+                  if (espiando) despachar({ tipo: "mostrar" });
+                  despachar({ tipo: "siguiente", nivel });
+                }}
+              >
                 {estado.actual + 1 < estado.paneles.length ? "Siguiente panel" : "Ver resumen"}
               </Button>
             ) : (
@@ -279,53 +325,18 @@ function Partida({
                   <LightbulbIcon className="size-6" /> Ayuda
                   <Badge variant="outline">{ayudasRestantes}</Badge>
                 </Button>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="ghost" size="lg" className="h-16 px-6 text-lg">
-                      <EyeIcon className="size-6" /> Ver solución
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>¿Mostrar la solución?</AlertDialogTitle>
-                      <AlertDialogDescription>Se abandona este panel: se destapa entero (también lo que nadie ha acertado) y se pasa al siguiente.</AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => despachar({ tipo: "mostrar" })}>Mostrar</AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                <Button variant="ghost" size="lg" className="h-16 px-6 text-lg" onClick={() => despachar({ tipo: "saltarTurno" })}>
+                  <SkipForwardIcon className="size-6" /> Saltar turno
+                </Button>
               </>
             )}
-          </div>
-          {/* Fila fija: los huecos se reservan aunque el botón no se vea, para que nada se mueva */}
-          <div className="flex h-16 items-center gap-2">
-            <Button
-              variant="ghost"
-              size="lg"
-              className={cn("h-16 px-6 text-lg", terminado && "invisible")}
-              onClick={() => despachar({ tipo: "saltarTurno" })}
-            >
-              <SkipForwardIcon className="size-6" /> Saltar turno
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className={cn(
-                "h-16 border-2 border-nord12 bg-nord13 px-6 text-lg font-semibold text-nord0 hover:bg-nord13/80",
-                (panel.porVoltear ?? []).length === 0 && "invisible",
-              )}
-              onClick={() => despachar({ tipo: "voltearTodas" })}
-            >
-              <SparklesIcon className="size-6" /> Destapar las iluminadas ({(panel.porVoltear ?? []).length})
-            </Button>
           </div>
         </div>
 
         <div className="flex items-end gap-2">
           {tecladoVisible && !terminado && (
             <Keyboard
+              deshabilitado={espiando}
               estadoTecla={estadoTecla}
               onLetra={jugarLetra}
               temblor={jugada && jugada.n === 0 ? { letra: jugada.letra, id: jugada.id } : null}

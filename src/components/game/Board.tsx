@@ -8,6 +8,8 @@ interface Props {
   visibles: string[];
   /** casillas iluminadas pendientes de destapar con el lápiz */
   porVoltear?: number[];
+  /** enseña la solución completa (las letras aún no descubiertas salen en azul) */
+  solucion?: boolean;
   onVoltear?: (indice: number) => void;
   /** modo Resolver: letra propuesta por cada casilla de letra (por índice) */
   propuesta?: (string | undefined)[];
@@ -24,7 +26,7 @@ interface Props {
  * Tablero tipo "ruleta de la suerte": 4 filas × 14 columnas.
  * El tamaño de las casillas se adapta al espacio disponible (container queries).
  */
-export function Board({ frase, visibles, porVoltear = [], onVoltear, propuesta, cursor, errores, onCasilla, className }: Props) {
+export function Board({ frase, visibles, porVoltear = [], solucion = false, onVoltear, propuesta, cursor, errores, onCasilla, className }: Props) {
   const tablero = useMemo(() => crearTablero(frase), [frase]);
 
   return (
@@ -48,8 +50,10 @@ export function Board({ frase, visibles, porVoltear = [], onVoltear, propuesta, 
             if (casilla === null) return <div key={clave} className="rounded-md bg-nord10 shadow-inner" aria-hidden />;
 
             const esLetra = casilla.letra !== null;
-            const iluminada = esLetra && porVoltear.includes(casilla.indice);
-            const visible = !esLetra || (visibles.includes(casilla.letra!) && !iluminada);
+            const descubierta = esLetra && visibles.includes(casilla.letra!);
+            const iluminada = esLetra && !solucion && porVoltear.includes(casilla.indice);
+            const espiada = solucion && esLetra && (!descubierta || porVoltear.includes(casilla.indice));
+            const visible = !esLetra || espiada || (descubierta && !iluminada);
             const propuesta_ = esLetra && !visible ? propuesta?.[casilla.indice] : undefined;
             const activa = esLetra && !visible && cursor === casilla.indice;
             const error = esLetra && errores?.includes(casilla.indice);
@@ -75,6 +79,7 @@ export function Board({ frase, visibles, porVoltear = [], onVoltear, propuesta, 
                   iluminada &&
                     "cursor-pointer border-nord12 bg-nord13 shadow-[0_0_calc(var(--casilla)*0.35)_var(--color-nord13)] animate-pulse",
                   error && "border-nord11 bg-nord11/15 text-nord11",
+                  espiada && "border-dashed text-nord10",
                 )}
                 style={{ fontSize: "calc(var(--casilla) * 0.7)" }}
               >

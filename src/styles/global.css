@@ -140,3 +140,17 @@
 @media (prefers-reduced-motion: reduce) {
   .animate-temblor { animation: none; }
 }
+
+/* Al sumar puntos: el marcador del equipo da un pequeño salto con un destello verde */
+@theme {
+  --animate-puntos: puntos 0.9s ease-out;
+  @keyframes puntos {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 var(--color-nord14); }
+    30% { transform: scale(1.15); box-shadow: 0 0 0 6px var(--color-nord14); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 transparent; }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-puntos { animation: none; }
+}
