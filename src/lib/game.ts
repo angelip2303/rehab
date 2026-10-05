@@ -85,6 +85,10 @@ export interface Estado {
   turno: number;
   /** jugadas por persona (letras, resolver) para el resumen */
   participaciones: number[];
+  /** jugadas con premio por persona (letra que estaba o panel resuelto) */
+  aciertos: number[];
+  /** puntos aportados por cada persona (se cuentan siempre; solo se enseñan en Concurso) */
+  puntosPersona: number[];
   puntos: number[];
   resultados: ResultadoPanel[];
   terminado: boolean;
@@ -121,6 +125,8 @@ export function crearEstado(sesion: Sesion, paneles: Panel[], nivel: Nivel): Est
     panel: nuevoPanel(paneles[0], nivel),
     turno: 0,
     participaciones: sesion.personas.map(() => 0),
+    aciertos: sesion.personas.map(() => 0),
+    puntosPersona: sesion.personas.map(() => 0),
     puntos: equipos.map(() => 0),
     resultados: [],
     terminado: false,
@@ -170,9 +176,16 @@ function avanzarTurno(e: Estado, puntos = 0): Estado {
   const { equipo, persona } = turnoEn(e.equipos, e.turno);
   const participaciones = [...e.participaciones];
   participaciones[persona]++;
+  // partidas guardadas antes de existir estos contadores
+  const aciertos = [...(e.aciertos ?? e.participaciones.map(() => 0))];
+  const puntosPersona = [...(e.puntosPersona ?? e.participaciones.map(() => 0))];
+  if (puntos > 0) {
+    aciertos[persona]++;
+    puntosPersona[persona] += puntos;
+  }
   const marcador = [...e.puntos];
   if (e.sesion.modo === "concurso") marcador[equipo] += puntos;
-  return { ...e, turno: e.turno + 1, participaciones, puntos: marcador };
+  return { ...e, turno: e.turno + 1, participaciones, aciertos, puntosPersona, puntos: marcador };
 }
 
 function cerrarPanel(e: Estado, resultado: ResultadoPanel): Estado {

@@ -11,14 +11,18 @@ niveles Fácil / Moderado / Difícil con fases progresivas.
 
 ## Cómo se juega
 
-1. **Configuración**: nivel y fase inicial, temáticas, nº de personas y equipos (nombres opcionales),
+1. **Configuración**: nivel, temáticas, nº de personas y equipos (nombres opcionales),
    modo y cuántos paneles se juegan (por defecto todos). Pulsar **¡A jugar!**.
 2. **Panel**: arriba la pista; abajo se indica a quién le toca. La persona de turno toca una letra en el
-   teclado de pantalla y se destapan todas sus apariciones. Acierte o no, el turno pasa a la siguiente persona.
+   teclado de pantalla. Acierte o no, el turno pasa a la siguiente persona.
+   - Las casillas acertadas se **iluminan** y se destapan tocándolas con el lápiz una a una
+     (o todas a la vez con **Destapar las iluminadas**).
    - **Resolver**: se rellena la frase casilla a casilla con el teclado y se pulsa *Comprobar*.
-   - **Ayuda**: primero muestra la ayuda escrita del panel (si tiene) y después destapa la letra que más se repite.
-   - **Pasar turno**: si alguien no quiere o no puede jugar en ese momento.
-   - **Mostrar solución**: para que la persona que dinamiza pueda avanzar.
+   - **Ayuda**: primero muestra la ayuda escrita del panel (si tiene) y después ilumina la letra que más se repite.
+   - **Saltar turno** (junto al nombre): pasa a la siguiente persona sin jugar.
+   - **Ver solución**: abandona el panel, lo destapa entero y se pasa al siguiente.
+   - **Marcador**: muestra u oculta en cualquier momento los puntos por equipo y las jugadas,
+     aciertos y puntos de cada persona.
 3. **Resumen**: paneles resueltos, jugadas de cada persona (para ver que todos han participado) y puntos en modo Concurso.
 
 ## Contenido

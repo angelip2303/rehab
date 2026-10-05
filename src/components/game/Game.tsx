@@ -1,5 +1,5 @@
 import { useEffect, useReducer, useRef, useState } from "react";
-import { CheckIcon, EyeIcon, XIcon, KeyboardIcon, LightbulbIcon, LogOutIcon, SkipForwardIcon, SpellCheckIcon } from "lucide-react";
+import { CheckIcon, EyeIcon, SparklesIcon, TrophyIcon, KeyboardIcon, LightbulbIcon, LogOutIcon, SkipForwardIcon, SpellCheckIcon } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,6 +28,8 @@ import { Board } from "./Board";
 import { Keyboard, type EstadoTecla } from "./Keyboard";
 import { MissionBar } from "./MissionBar";
 import { Scoreboard } from "./Scoreboard";
+import { ScorePanel } from "./ScorePanel";
+import { Toggle } from "@/components/ui/toggle";
 import { SolveDialog } from "./SolveDialog";
 import { Summary } from "./Summary";
 import { TurnBanner } from "./TurnBanner";
@@ -106,6 +108,7 @@ function Partida({
   /** última letra jugada, para el feedback de acierto/fallo */
   const [jugada, setJugada] = useState<{ letra: string; n: number; id: number } | null>(null);
   const [temblorPanel, setTemblorPanel] = useState(0);
+  const [verMarcador, setVerMarcador] = useState(false);
 
   function jugarLetra(letra: string) {
     const n = apariciones(estado.panel.panel.frase, letra);
@@ -167,6 +170,15 @@ function Partida({
         <Badge variant="outline" className="px-3 py-1 text-base">
           {nivel.nombre}
         </Badge>
+        <Toggle
+          variant="outline"
+          size="lg"
+          pressed={verMarcador}
+          onPressedChange={setVerMarcador}
+          className="h-12 gap-2 px-4 text-lg data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:hover:bg-primary/90 data-[state=on]:hover:text-primary-foreground"
+        >
+          <TrophyIcon className="size-5" /> Marcador
+        </Toggle>
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button variant="ghost" size="lg" aria-label="Salir">
@@ -202,14 +214,17 @@ function Partida({
         </CardContent>
       </Card>
 
-      <Board
-        key={`tablero-${temblorPanel}`}
-        frase={panel.panel.frase}
-        visibles={panel.visibles}
-        porVoltear={panel.porVoltear ?? []}
-        onVoltear={(indice) => despachar({ tipo: "voltear", indice })}
-        className={cn("min-h-0 flex-1", temblorPanel > 0 && "animate-temblor")}
-      />
+      <div className="flex min-h-0 flex-1 gap-4">
+        <Board
+          key={`tablero-${temblorPanel}`}
+          frase={panel.panel.frase}
+          visibles={panel.visibles}
+          porVoltear={panel.porVoltear ?? []}
+          onVoltear={(indice) => despachar({ tipo: "voltear", indice })}
+          className={cn("min-h-0 min-w-0 flex-1", temblorPanel > 0 && "animate-temblor")}
+        />
+        {verMarcador && <ScorePanel estado={estado} turno={turno} />}
+      </div>
 
       <Separator />
 
@@ -222,25 +237,31 @@ function Partida({
           ) : (
             <div className="flex items-center gap-4">
               <TurnBanner turno={turno} equipos={estado.equipos} personas={estado.sesion.personas} />
-              {jugada && (
+              <Button variant="ghost" size="lg" className="h-12 px-3 text-base text-muted-foreground" onClick={() => despachar({ tipo: "saltarTurno" })}>
+                <SkipForwardIcon className="size-5" /> Saltar turno
+              </Button>
+              {jugada && jugada.n > 0 && (
                 <Badge
                   key={jugada.id}
                   role="status"
-                  className={cn(
-                    "animate-in fade-in zoom-in-95 gap-2 px-4 py-1.5 text-xl font-bold",
-                    jugada.n > 0 ? "bg-emerald-600 text-white" : "bg-destructive text-white",
-                  )}
+                  className="animate-in fade-in zoom-in-95 gap-2 bg-emerald-600 px-4 py-1.5 text-xl font-bold text-white"
                 >
-                  {jugada.n > 0 ? <CheckIcon className="size-5" /> : <XIcon className="size-5" />}
-                  {jugada.n > 0 ? `Hay ${jugada.n} ${jugada.letra}` : `No hay ninguna ${jugada.letra}`}
+                  <CheckIcon className="size-5" />
+                  Hay {jugada.n} {jugada.letra}
+                  {estado.sesion.modo === "concurso" && ` · +${jugada.n}`}
                 </Badge>
               )}
             </div>
           )}
           <div className="flex flex-wrap gap-2">
             {(panel.porVoltear ?? []).length > 0 && (
-              <Button variant="outline" size="lg" className="h-14 px-6 text-lg" onClick={() => despachar({ tipo: "voltearTodas" })}>
-                <EyeIcon className="size-6" /> Destapar todas ({panel.porVoltear.length})
+              <Button
+                variant="outline"
+                size="lg"
+                className="h-14 border-2 border-amber-600 bg-amber-300 px-6 text-lg font-semibold text-neutral-950 hover:bg-amber-200"
+                onClick={() => despachar({ tipo: "voltearTodas" })}
+              >
+                <SparklesIcon className="size-6" /> Destapar las iluminadas ({panel.porVoltear.length})
               </Button>
             )}
             {terminado ? (
@@ -269,19 +290,16 @@ function Partida({
                   <LightbulbIcon className="size-6" /> Ayuda
                   <Badge variant="outline">{ayudasRestantes}</Badge>
                 </Button>
-                <Button variant="outline" size="lg" className="h-14 px-6 text-lg" onClick={() => despachar({ tipo: "saltarTurno" })}>
-                  <SkipForwardIcon className="size-6" /> Pasar turno
-                </Button>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button variant="ghost" size="lg" className="h-14 px-6 text-lg">
-                      <EyeIcon className="size-6" /> Mostrar solución
+                      <EyeIcon className="size-6" /> Ver solución
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
                       <AlertDialogTitle>¿Mostrar la solución?</AlertDialogTitle>
-                      <AlertDialogDescription>Se destapará todo el panel y se podrá pasar al siguiente.</AlertDialogDescription>
+                      <AlertDialogDescription>Se abandona este panel: se destapa entero (también lo que nadie ha acertado) y se pasa al siguiente.</AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancelar</AlertDialogCancel>

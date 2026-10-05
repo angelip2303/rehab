@@ -42,9 +42,14 @@ test("configurar una sesión, jugar y resolver un panel", async ({ page }) => {
     return "WXKZYQJ".split("").find((l) => !enPanel.has(l))!;
   });
   await page.getByRole("button", { name: `Letra ${ausente}`, exact: true }).click();
-  await expect(page.getByRole("status")).toHaveText(`No hay ninguna ${ausente}`);
   await expect(page.getByRole("button", { name: `Letra ${ausente}`, exact: true })).toHaveAttribute("data-estado", "fallo");
+  // El marcador se abre y se cierra en cualquier momento
+  await page.getByRole("button", { name: "Marcador" }).click();
+  await expect(page.getByRole("complementary", { name: "Marcador" })).toBeVisible();
+  await sinScroll(page);
   await page.screenshot({ path: "test-results/3-letras.png" });
+  await page.getByRole("button", { name: "Marcador" }).click();
+  await expect(page.getByRole("complementary", { name: "Marcador" })).toBeHidden();
 
   // Resolver casilla a casilla
   const letras = await page
@@ -59,10 +64,10 @@ test("configurar una sesión, jugar y resolver un panel", async ({ page }) => {
   await expect(page.getByText("¡Panel resuelto!")).toBeVisible();
   await expect(page.getByText("1 / 4")).toBeVisible();
 
-  // Mostrar solución del resto para llegar al resumen
+  // Ver solución del resto para llegar al resumen
   for (let i = 0; i < 3; i++) {
     await page.getByRole("button", { name: /Siguiente panel/ }).click();
-    await page.getByRole("button", { name: "Mostrar solución" }).click();
+    await page.getByRole("button", { name: "Ver solución" }).click();
     await page.getByRole("alertdialog").getByRole("button", { name: "Mostrar" }).click();
   }
   await page.getByRole("button", { name: "Ver resumen" }).click();
@@ -84,7 +89,7 @@ for (const viewport of [{ width: 1366, height: 768 }, { width: 1280, height: 720
     await expect(page.getByText("Turno de")).toBeVisible();
     await sinScroll(page);
     for (let i = 0; i < 4; i++) {
-      await page.getByRole("button", { name: "Mostrar solución" }).click();
+      await page.getByRole("button", { name: "Ver solución" }).click();
       await page.getByRole("alertdialog").getByRole("button", { name: "Mostrar" }).click();
       await page.getByRole("button", { name: /Siguiente panel|Ver resumen/ }).click();
     }
