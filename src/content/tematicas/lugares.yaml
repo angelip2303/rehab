@@ -9,8 +9,8 @@ paneles:
   - frase: Mercado
     pista: Donde se compra fruta, carne y pescado
     nivel: facil
-  - frase: La plaza mayor
-    pista: El centro de muchos pueblos y ciudades
+  - frase: Madrid
+    pista: Capital de España
     nivel: facil
   - frase: Iglesia
     pista: Edificio con campanario
@@ -60,4 +60,7 @@ paneles:
     nivel: dificil
   - frase: Nalón, Sella, Navia y Esva 
     pista: Ríos de Asturias
+    nivel: dificil
+  - frase: El Jardín Botánico Atlántico
+    pista: Se encuentra cerca de la Universidad Laboral de Gijón
     nivel: dificil
