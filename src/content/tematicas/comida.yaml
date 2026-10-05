@@ -33,20 +33,20 @@ paneles:
   - frase: Las lentejas con chorizo
     pista: Si quieres las comes y si no las dejas
     nivel: moderado
-  - frase: Jamón serrano y queso manchego
-    pista: Una buena tapa de embutido y lácteo
-    nivel: moderado
-  - frase: El roscón de Reyes lleva sorpresa
-    pista: Dulce del seis de enero
+  - frase: El roscón de Reyes
+    pista: Dulce del seis de Enero
     nivel: moderado
   - frase: Las uvas de Nochevieja
     pista: Se toman con las campanadas
     nivel: moderado
-  - frase: Las marañuelas
+  - frase: Marañuelas
     pista: Dulces típicos de Candás y Luanco
     nivel: moderado
   - frase: Casadielles
     pista: Dulces típicos del Antroxu
+    nivel: moderado
+  - frase: Moscovitas
+    pista: Galletas crujientes elaboradas con almendra
     nivel: moderado
 
   # ---------- DIFÍCIL ----------
@@ -55,9 +55,6 @@ paneles:
     nivel: dificil
   - frase: Al pan, pan y al vino, vino
     pista: Refrán sobre hablar claro
-    nivel: dificil
-  - frase: Las migas de pastor con uvas
-    pista: Plato humilde de pan del campo
     nivel: dificil
   - frase: Contigo, pan y cebolla
     pista: Lo que se dice por amor, aunque falte de todo
