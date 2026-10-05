@@ -43,10 +43,6 @@ paneles:
     nivel: moderado
 
   # ---------- DIFÍCIL ----------
-  - frase: Tres de Soria
-    pista: Ciudades o pueblos de una provincia castellana
-    nivel: dificil
-    ayuda: "Por ejemplo: Almazán"
   - frase: Las islas Canarias
     pista: Archipiélago del océano Atlántico
     nivel: dificil
