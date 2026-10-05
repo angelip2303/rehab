@@ -16,7 +16,7 @@ import { crearEquipos, nombrePersona } from "@/lib/turns";
 import type { Modo, Nivel, NivelId, Panel, Tema } from "@/lib/types";
 
 const MIN_PERSONAS = 2;
-const MAX_PERSONAS = 15;
+const MAX_PERSONAS = 20;
 const OPCIONES_PANELES = [4, 6, 8, 10];
 /** 0 = jugar todos los paneles disponibles */
 const TODOS = 0;

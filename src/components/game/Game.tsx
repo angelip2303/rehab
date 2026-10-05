@@ -224,7 +224,8 @@ function Partida({
         </CardContent>
       </Card>
 
-      <div className="flex min-h-0 flex-1 gap-4">
+      {/* El botón de destapar flota sobre el borde del tablero para no mover el resto de controles */}
+      <div className="relative flex min-h-0 flex-1 gap-4">
         <Board
           key={`tablero-${temblorPanel}`}
           frase={panel.panel.frase}
@@ -233,6 +234,16 @@ function Partida({
           onVoltear={(indice) => despachar({ tipo: "voltear", indice })}
           className={cn("min-h-0 min-w-0 flex-1", temblorPanel > 0 && "animate-temblor")}
         />
+        {(panel.porVoltear ?? []).length > 0 && (
+          <Button
+            variant="outline"
+            size="lg"
+            className="absolute bottom-0 left-1/2 h-14 -translate-x-1/2 translate-y-1/2 border-2 border-nord12 bg-nord13 px-6 text-lg font-semibold text-nord0 shadow-lg hover:bg-nord13/80"
+            onClick={() => despachar({ tipo: "voltearTodas" })}
+          >
+            <SparklesIcon className="size-6" /> Destapar las iluminadas ({panel.porVoltear.length})
+          </Button>
+        )}
       </div>
 
       <Separator />
@@ -240,7 +251,7 @@ function Partida({
       <section className="flex items-end justify-between gap-4">
         <div className="flex flex-col gap-3">
           {terminado ? (
-            <span className="text-2xl font-semibold">
+            <span className="flex h-14 items-center text-2xl font-semibold">
               {panel.resultado === "mostrado"
                 ? "Solución 👀"
                 : resueltoYDestapado
@@ -248,11 +259,8 @@ function Partida({
                   : "¡Resuelto! Destapad el panel ✨"}
             </span>
           ) : (
-            <div className="flex items-center gap-4">
+            <div className="flex h-14 items-center gap-4">
               <TurnBanner turno={turno} equipos={estado.equipos} personas={estado.sesion.personas} />
-              <Button variant="ghost" size="lg" className="h-12 px-3 text-base text-muted-foreground" onClick={() => despachar({ tipo: "saltarTurno" })}>
-                <SkipForwardIcon className="size-5" /> Saltar turno
-              </Button>
               {jugada && jugada.n > 0 && (
                 <Badge
                   key={jugada.id}
@@ -266,17 +274,7 @@ function Partida({
               )}
             </div>
           )}
-          <div className="flex flex-wrap gap-2">
-            {(panel.porVoltear ?? []).length > 0 && (
-              <Button
-                variant="outline"
-                size="lg"
-                className="h-14 border-2 border-nord12 bg-nord13 px-6 text-lg font-semibold text-nord0 hover:bg-nord13/80"
-                onClick={() => despachar({ tipo: "voltearTodas" })}
-              >
-                <SparklesIcon className="size-6" /> Destapar las iluminadas ({panel.porVoltear.length})
-              </Button>
-            )}
+          <div className="flex h-16 items-center gap-2">
             {terminado ? (
               <Button size="lg" className="h-16 px-10 text-2xl" onClick={() => despachar({ tipo: "siguiente", nivel })}>
                 {estado.actual + 1 < estado.paneles.length ? "Siguiente panel" : "Ver resumen"}
@@ -320,6 +318,9 @@ function Partida({
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
+                <Button variant="ghost" size="lg" className="h-14 px-6 text-lg" onClick={() => despachar({ tipo: "saltarTurno" })}>
+                  <SkipForwardIcon className="size-6" /> Saltar turno
+                </Button>
               </>
             )}
           </div>

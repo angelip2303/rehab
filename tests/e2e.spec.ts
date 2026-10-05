@@ -37,7 +37,11 @@ test("configurar una sesión, jugar y resolver un panel", async ({ page }) => {
     const [primera] = [...pendientes];
     if (!primera) break;
     if (pendientes.size === 1) break;
+    const antes = await page.getByRole("button", { name: "Resolver" }).boundingBox();
     await page.getByRole("button", { name: `Letra ${primera}`, exact: true }).click();
+    // los botones de abajo no se mueven aunque aparezca «Destapar las iluminadas»
+    await expect(page.getByRole("button", { name: /Destapar las iluminadas/ })).toBeVisible();
+    expect(await page.getByRole("button", { name: "Resolver" }).boundingBox()).toEqual(antes);
     // las casillas acertadas se iluminan y se destapan tocándolas una a una
     const iluminadas = page.locator("[data-iluminada]");
     await expect(iluminadas.first()).toBeVisible();
@@ -89,14 +93,16 @@ test("configurar una sesión, jugar y resolver un panel", async ({ page }) => {
 });
 
 for (const viewport of [{ width: 1366, height: 768 }, { width: 1280, height: 720 }]) {
-  test(`15 personas caben sin scroll a ${viewport.width}x${viewport.height}`, async ({ page }) => {
+  test(`20 personas caben sin scroll a ${viewport.width}x${viewport.height}`, async ({ page }) => {
     await page.setViewportSize(viewport);
     await page.goto("./");
-    for (let i = 0; i < 7; i++) await page.getByRole("button", { name: "Una persona más" }).click();
+    for (let i = 0; i < 15; i++) await page.getByRole("button", { name: "Una persona más" }).click();
+    await expect(page.getByRole("button", { name: "Una persona más" })).toBeEnabled();
+    await expect(page.getByText("20", { exact: true })).toBeVisible();
     for (const equipos of ["4", "3", "Todo el grupo"]) {
       await page.getByRole("radiogroup", { name: "Equipos" }).getByRole("radio", { name: equipos, exact: true }).click();
       await sinScroll(page);
-      await expect(page.getByText("Persona 15")).toBeInViewport();
+      await expect(page.getByText("Persona 20")).toBeInViewport();
     }
     await page.getByRole("radiogroup", { name: "Paneles de la misión" }).getByRole("radio", { name: "4", exact: true }).click();
     await sinScroll(page);
