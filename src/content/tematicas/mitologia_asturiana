@@ -1,0 +1,22 @@
+# Temática: Mitología Asturiana
+# Cada panel necesita: frase, pista y nivel (facil | moderado | dificil).
+# "ayuda" es opcional: es una segunda pista que se enseña al pulsar el botón Ayuda.
+nombre: Mitología Asturiana
+icono: "🧚‍♀️"
+paneles:
+  # ---------- FÁCIL ----------
+  - frase: Ratón
+    pista: Pequeño animal al que le gusta el queso
+    nivel: facil
+    ayuda: Le persigue el gato
+  
+  # ---------- MODERADO ----------
+  - frase: Elefante africano
+    pista: El animal terrestre más grande
+    nivel: moderado
+    ayuda: Tiene trompa
+
+  # ---------- DIFÍCIL ----------
+  - frase: Perro ladrador, poco mordedor
+    pista: Refrán sobre quien amenaza mucho
+    nivel: dificil
