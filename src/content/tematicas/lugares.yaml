@@ -35,14 +35,14 @@ paneles:
   - frase: La catedral de Santiago de Compostela
     pista: Meta del Camino
     nivel: moderado
-  - frase: El río Ebro pasa por Zaragoza
-    pista: Junto a la basílica del Pilar
+  - frase: Picu Urriellu
+    pista: Pico en Cabrales
+    nivel: moderado
+  - frase: Monte Naranco
+    pista: Situado en Oviedo
     nivel: moderado
 
   # ---------- DIFÍCIL ----------
-  - frase: Las islas Canarias
-    pista: Archipiélago del océano Atlántico
-    nivel: dificil
   - frase: Todos los caminos llevan a Roma
     pista: Refrán sobre llegar al mismo sitio
     nivel: dificil
