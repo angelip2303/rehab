@@ -9,7 +9,6 @@ paneles:
     pista: Ninfa o hada de aguas cristalinas
     nivel: facil
     ayuda: Cuidan de la naturaleza
-    
    - frase: Deva
     pista: Diosa del agua
     nivel: facil
@@ -20,7 +19,6 @@ paneles:
     pista: Dios de las tormentas, el granizo y la lluvia
     nivel: moderado
     ayuda: Cantante asturiano
-
   - frase: El Basiliscu
     pista: Cuerpo de serpiente y cabeza de gallo
     nivel: moderado
