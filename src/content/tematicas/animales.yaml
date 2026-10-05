@@ -1,7 +1,7 @@
 # Temática: Mitología Asturiana
 # Cada panel necesita: frase, pista y nivel (facil | moderado | dificil).
 # "ayuda" es opcional: es una segunda pista que se enseña al pulsar el botón Ayuda.
-nombre: Mitología Asturiana
+nombre: Animales
 icono: "🐾"
 paneles:
   # ---------- FÁCIL ----------
