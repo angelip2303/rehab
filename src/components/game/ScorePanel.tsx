@@ -45,7 +45,7 @@ export function ScorePanel({ estado, turno }: { estado: Estado; turno: Turno }) 
                     leToca && "bg-nord13/40 font-bold",
                   )}
                 >
-                  <span className="truncate">
+                  <span className="break-words">
                     {leToca && "👉 "}
                     {nombrePersona(estado.sesion.personas, m)}
                   </span>

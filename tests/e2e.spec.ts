@@ -7,6 +7,13 @@ async function sinScroll(page: Page) {
     visible: window.innerHeight,
   }));
   expect(alto).toBeLessThanOrEqual(visible);
+  // y nada se corta dentro de las tarjetas
+  const cortadas = await page.evaluate(() =>
+    [...document.querySelectorAll<HTMLElement>("[data-slot=card], [data-slot=card] *")]
+      .filter((el) => el.scrollHeight > el.clientHeight + 1 && getComputedStyle(el).overflowY !== "visible")
+      .map((el) => el.textContent?.slice(0, 40)),
+  );
+  expect(cortadas).toEqual([]);
 }
 
 test("configurar una sesión, jugar y resolver un panel", async ({ page }) => {
@@ -86,7 +93,11 @@ for (const viewport of [{ width: 1366, height: 768 }, { width: 1280, height: 720
     await page.setViewportSize(viewport);
     await page.goto("./");
     for (let i = 0; i < 7; i++) await page.getByRole("button", { name: "Una persona más" }).click();
-    await page.getByRole("radiogroup", { name: "Equipos" }).getByRole("radio", { name: "Todo el grupo" }).click();
+    for (const equipos of ["4", "3", "Todo el grupo"]) {
+      await page.getByRole("radiogroup", { name: "Equipos" }).getByRole("radio", { name: equipos, exact: true }).click();
+      await sinScroll(page);
+      await expect(page.getByText("Persona 15")).toBeInViewport();
+    }
     await page.getByRole("radiogroup", { name: "Paneles de la misión" }).getByRole("radio", { name: "4", exact: true }).click();
     await sinScroll(page);
     await page.screenshot({ path: `test-results/config-${viewport.width}.png` });

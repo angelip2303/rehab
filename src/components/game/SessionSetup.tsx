@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { MinusIcon, PlusIcon, UsersIcon } from "lucide-react";
+import { CheckCheckIcon, CheckIcon, MinusIcon, PlusIcon, UsersIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Keyboard } from "@/components/game/Keyboard";
+import { COLOR_EQUIPO } from "@/components/game/colores";
 import { cn } from "@/lib/utils";
 import { borrarPartida } from "@/lib/partida";
 import { cargarSesion, guardarSesion, type Sesion } from "@/lib/session";
@@ -79,8 +80,8 @@ export function SessionSetup({ temas, niveles, paneles }: Props) {
         </Button>
       </header>
 
-      <div className="grid min-h-0 flex-1 grid-cols-2 grid-rows-2 gap-4">
-        <Card className="min-h-0 gap-4 overflow-hidden py-5">
+      <div className="grid min-h-0 flex-1 grid-cols-2 grid-rows-[auto_1fr] gap-4">
+        <Card className="min-h-0 gap-4 py-5">
           <CardHeader>
             <CardTitle className="text-xl">Nivel</CardTitle>
             <CardDescription>Los paneles van de lo más sencillo a lo más complejo dentro de cada nivel</CardDescription>
@@ -108,32 +109,65 @@ export function SessionSetup({ temas, niveles, paneles }: Props) {
           </CardContent>
         </Card>
 
-        <Card className="min-h-0 gap-4 overflow-hidden py-5">
+        <Card className="min-h-0 gap-4 py-5">
           <CardHeader>
             <CardTitle className="text-xl">Temáticas</CardTitle>
-            <CardDescription>Puedes elegir varias</CardDescription>
+            <CardDescription>
+              {temasElegidos.length === temas.length
+                ? "Todas elegidas · toca para quitar alguna"
+                : `${temasElegidos.length} de ${temas.length} elegidas`}
+            </CardDescription>
+            <CardAction>
+              <Button
+                variant="outline"
+                size="lg"
+                className="h-12 text-base"
+                disabled={temasElegidos.length === temas.length}
+                onClick={() => setTemasElegidos(temas.map((t) => t.id))}
+              >
+                <CheckCheckIcon /> Todas
+              </Button>
+            </CardAction>
           </CardHeader>
           <CardContent>
             <ToggleGroup
               type="multiple"
               variant="outline"
               spacing={2}
-              className="flex-wrap"
+              className="grid w-full grid-cols-2 xl:grid-cols-4"
               aria-label="Temáticas"
               value={temasElegidos}
               onValueChange={(v) => v.length > 0 && setTemasElegidos(v)}
             >
-              {temas.map((t) => (
-                <ToggleGroupItem key={t.id} value={t.id} className={opcion}>
-                  {t.icono} {t.nombre}
-                  <Badge variant="secondary">{t.paneles[nivel]}</Badge>
-                </ToggleGroupItem>
-              ))}
+              {temas.map((t) => {
+                const elegido = temasElegidos.includes(t.id);
+                return (
+                  <ToggleGroupItem
+                    key={t.id}
+                    value={t.id}
+                    aria-label={t.nombre}
+                    className="relative h-auto w-full flex-col gap-1 border-2 px-3 py-3 text-lg whitespace-normal data-[state=on]:border-primary data-[state=on]:bg-primary/15 data-[state=on]:text-foreground data-[state=on]:hover:bg-primary/20"
+                  >
+                    {elegido && (
+                      <span className="absolute top-2 right-2 flex size-6 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                        <CheckIcon className="size-4" />
+                      </span>
+                    )}
+                    <span className="text-4xl leading-none" aria-hidden>
+                      {t.icono ?? "🗂️"}
+                    </span>
+                    <span className="font-semibold">{t.nombre}</span>
+                    <span className="text-sm text-muted-foreground">
+                      {t.paneles[nivel]} {t.paneles[nivel] === 1 ? "panel" : "paneles"}
+                    </span>
+                  </ToggleGroupItem>
+                );
+              })}
             </ToggleGroup>
           </CardContent>
         </Card>
 
-        <Card className="min-h-0 gap-4 overflow-hidden py-5">
+        <Card className="min-h-0 gap-4 py-5">
           <CardHeader>
             <CardTitle className="text-xl">Grupo</CardTitle>
             <CardDescription>Los equipos se reparten solos y por turnos fijos: todo el mundo participa</CardDescription>
@@ -175,20 +209,28 @@ export function SessionSetup({ temas, niveles, paneles }: Props) {
                 </ToggleGroup>
               </div>
             </div>
-            <div className="grid min-h-0 grid-cols-2 gap-2">
-              {repartos.map((e) => (
-                <div key={e.numero} className="min-w-0 rounded-md border px-3 py-2">
-                  <p className="text-sm font-medium">{repartos.length > 1 ? e.nombre : "Grupo"}</p>
-                  <p className="line-clamp-2 text-sm text-muted-foreground">
-                    {e.miembros.map((m) => nombrePersona(personas, m)).join(", ")}
+            {/* Reparto: una columna por equipo, con todos los nombres visibles (sin cortes) */}
+            <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${repartos.length}, minmax(0, 1fr))` }}>
+              {repartos.map((e, i) => (
+                <div key={e.numero} className="rounded-md border px-3 py-2">
+                  <p className="mb-1 flex items-center gap-2 text-sm font-semibold">
+                    <span className="size-3 shrink-0 rounded-full" style={{ background: COLOR_EQUIPO[i] }} />
+                    {repartos.length > 1 ? e.nombre : "Grupo"}
                   </p>
+                  <div className="flex flex-wrap gap-1">
+                    {e.miembros.map((m) => (
+                      <Badge key={m} variant="secondary" className="text-sm whitespace-normal">
+                        {nombrePersona(personas, m)}
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
               ))}
             </div>
           </CardContent>
         </Card>
 
-        <Card className="min-h-0 gap-4 overflow-hidden py-5">
+        <Card className="min-h-0 gap-4 py-5">
           <CardHeader>
             <CardTitle className="text-xl">Modo y misión</CardTitle>
             <CardDescription>
