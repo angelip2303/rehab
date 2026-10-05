@@ -1,7 +1,7 @@
-# Temática: Mitología Asturiana
+# Temática: Mitología asturiana
 # Cada panel necesita: frase, pista y nivel (facil | moderado | dificil).
 # "ayuda" es opcional: es una segunda pista que se enseña al pulsar el botón Ayuda.
-nombre: Mitología Asturiana
+nombre: Mitología asturiana
 icono: "🧚‍♀️"
 paneles:
   # ---------- FÁCIL ----------
@@ -24,11 +24,11 @@ paneles:
   
   # ---------- MODERADO ----------
   - frase: Nuberu
-    pista: Dios de las tormentas, el granizo y la lluvia
+    pista: Dios asturiano de las tormentas, el granizo y la lluvia
     nivel: moderado
     ayuda: Cantante asturiano
   - frase: El Basiliscu
-    pista: Cuerpo de serpiente y cabeza de gallo
+    pista: Ser mitológico con cuerpo de serpiente y cabeza de gallo
     nivel: moderado
     ayuda: Tener un enfado muy grande
   - frase: Cuélebre
@@ -38,6 +38,6 @@ paneles:
 
   # ---------- DIFÍCIL ----------
   - frase: Diañu Burlón
-    pista: Representa al macho cabrío y al diablo
+    pista: Ser mitológico asturiano que representa al macho cabrío y al diablo
     nivel: dificil
 
