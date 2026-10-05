@@ -5,18 +5,18 @@ nombre: Mitología Asturiana
 icono: "🧚‍♀️"
 paneles:
   # ---------- FÁCIL ----------
-  - frase: Ratón
-    pista: Pequeño animal al que le gusta el queso
+  - frase: Xana
+    pista: Ninfa o hada de aguas cristalinas
     nivel: facil
-    ayuda: Le persigue el gato
+    ayuda: Cuidan de la naturaleza
   
   # ---------- MODERADO ----------
-  - frase: Elefante africano
-    pista: El animal terrestre más grande
+  - frase: Nuberu
+    pista: Dios de las tormentas, el granizo y la lluvia
     nivel: moderado
-    ayuda: Tiene trompa
+    ayuda: Cantante asturiano
 
   # ---------- DIFÍCIL ----------
-  - frase: Perro ladrador, poco mordedor
-    pista: Refrán sobre quien amenaza mucho
+  - frase: Diañu Burlón
+    pista: Representa al macho cabrío y al diablo
     nivel: dificil
