@@ -5,6 +5,7 @@ describe("turnos", () => {
   it("reparte de forma equilibrada", () => {
     const equipos = crearEquipos(11, 3);
     expect(equipos.map((e) => e.miembros.length)).toEqual([4, 4, 3]);
+    expect(crearEquipos(25, 5).map((e) => e.miembros.length)).toEqual([5, 5, 5, 5, 5]);
   });
 
   it("todas las personas tienen turno antes de que nadie repita dos veces", () => {

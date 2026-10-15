@@ -18,6 +18,16 @@ async function sinScroll(page: Page) {
       .map((el) => el.textContent?.slice(0, 40)),
   );
   expect(cortadas).toEqual([]);
+  // ni contenido que se salga por debajo de su tarjeta
+  const fuera = await page.evaluate(() =>
+    [...document.querySelectorAll<HTMLElement>("[data-slot=card]")].flatMap((card) => {
+      const fondo = card.getBoundingClientRect().bottom;
+      return [...card.querySelectorAll<HTMLElement>("*")]
+        .filter((el) => el.getBoundingClientRect().height > 0 && el.getBoundingClientRect().bottom > fondo + 1)
+        .map((el) => el.textContent?.slice(0, 40));
+    }),
+  );
+  expect(fuera).toEqual([]);
 }
 
 test("configurar una sesión, jugar y resolver un panel", async ({ page }) => {
@@ -104,26 +114,27 @@ test("configurar una sesión, jugar y resolver un panel", async ({ page }) => {
 });
 
 for (const viewport of [{ width: 1366, height: 768 }, { width: 1280, height: 720 }]) {
-  test(`20 personas caben sin scroll a ${viewport.width}x${viewport.height}`, async ({ page }) => {
+  test(`25 personas caben sin scroll a ${viewport.width}x${viewport.height}`, async ({ page }) => {
     await page.setViewportSize(viewport);
     await page.goto("./");
-    for (let i = 0; i < 15; i++) await page.getByRole("button", { name: "Una persona más" }).click();
+    for (let i = 0; i < 20; i++) await page.getByRole("button", { name: "Una persona más" }).click();
     await expect(page.getByRole("button", { name: "Una persona más" })).toBeEnabled();
-    await expect(page.getByText("20", { exact: true })).toBeVisible();
+    await expect(page.getByText("25", { exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Una persona más" })).toBeEnabled();
     // las tarjetas de la configuración no se estiran al añadir personas
     const altoGrupo = () => page.locator("[data-slot=card]", { hasText: "Grupo" }).first().evaluate((el) => el.getBoundingClientRect().height);
     await page.reload();
     await page.getByRole("button", { name: "Una persona menos" }).waitFor();
     const altoInicial = await altoGrupo();
-    for (let i = 0; i < 12; i++) await page.getByRole("button", { name: "Una persona más" }).click();
-    for (const equipos of ["4", "3", "2", "Todo el grupo"]) {
+    for (let i = 0; i < 17; i++) await page.getByRole("button", { name: "Una persona más" }).click();
+    for (const equipos of ["5 equipos", "4 equipos", "3 equipos", "2 equipos", "Sin equipos"]) {
       await page.getByRole("radiogroup", { name: "Equipos" }).getByRole("radio", { name: equipos, exact: true }).click();
       expect(Math.abs((await altoGrupo()) - altoInicial)).toBeLessThan(2);
     }
-    for (const equipos of ["4", "3", "Todo el grupo"]) {
+    for (const equipos of ["5 equipos", "4 equipos", "3 equipos", "Sin equipos"]) {
       await page.getByRole("radiogroup", { name: "Equipos" }).getByRole("radio", { name: equipos, exact: true }).click();
       await sinScroll(page);
-      await expect(page.getByText("Persona 20")).toBeInViewport();
+      await expect(page.getByText("Persona 25")).toBeInViewport();
     }
     await page.getByRole("radiogroup", { name: "Paneles de la misión" }).getByRole("radio", { name: "4", exact: true }).click();
     // En Concurso, el texto de la misión ocupa como mucho dos líneas
@@ -146,3 +157,38 @@ for (const viewport of [{ width: 1366, height: 768 }, { width: 1280, height: 720
     await page.screenshot({ path: `test-results/resumen-${viewport.width}.png` });
   });
 }
+
+test("Concurso con 5 equipos y 25 personas cabe en una pantalla", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.goto("./");
+  for (let i = 0; i < 17; i++) await page.getByRole("button", { name: "Una persona más" }).click();
+  await page.getByRole("radiogroup", { name: "Equipos" }).getByRole("radio", { name: "5 equipos", exact: true }).click();
+  await page.getByRole("radio", { name: "Concurso" }).click();
+  await page.getByRole("radiogroup", { name: "Paneles de la misión" }).getByRole("radio", { name: "4", exact: true }).click();
+  await sinScroll(page);
+  await page.getByRole("button", { name: "¡A jugar!" }).click();
+  await expect(page.getByText("Turno de", { exact: true })).toBeVisible();
+
+  // la cabecera (misión + 5 marcadores + nivel + marcador + salir) en una sola línea
+  const unaLinea = await page.locator("header > *").evaluateAll((els) => {
+    const cajas = els.map((e) => e.getBoundingClientRect());
+    return Math.max(...cajas.map((c) => c.top)) < Math.min(...cajas.map((c) => c.bottom));
+  });
+  expect(unaLinea).toBe(true);
+  await expect(page.getByLabel("Equipo 5: 0 puntos")).toBeVisible();
+  await sinScroll(page);
+  await page.screenshot({ path: "test-results/concurso-5-equipos.png" });
+
+  await page.getByRole("button", { name: "Marcador" }).click();
+  await expect(page.getByRole("dialog", { name: /Marcador/ })).toBeVisible();
+  await page.screenshot({ path: "test-results/marcador-5-equipos.png" });
+  await page.keyboard.press("Escape");
+
+  for (let i = 0; i < 4; i++) {
+    await page.getByRole("button", { name: "Ver solución" }).click();
+    await page.getByRole("button", { name: /Siguiente panel|Ver resumen/ }).click();
+  }
+  await expect(page.getByText("Misión completada")).toBeVisible();
+  await sinScroll(page);
+  await page.screenshot({ path: "test-results/resumen-25.png" });
+});

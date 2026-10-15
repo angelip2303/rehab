@@ -17,7 +17,7 @@ import { crearEquipos, nombrePersona } from "@/lib/turns";
 import type { Modo, Nivel, NivelId, Panel, Tema } from "@/lib/types";
 
 const MIN_PERSONAS = 2;
-const MAX_PERSONAS = 20;
+const MAX_PERSONAS = 25;
 const OPCIONES_PANELES = [4, 6, 8, 10];
 const MODOS: { id: Modo; nombre: string; icono: string; descripcion: string }[] = [
   { id: "light", nombre: "Light", icono: "🤝", descripcion: "Sin puntos: todo el grupo a por la misma misión" },
@@ -193,7 +193,7 @@ export function SessionSetup({ temas, niveles, paneles }: Props) {
             </CardAction>
           </CardHeader>
           <CardContent className="flex min-h-0 flex-1 flex-col gap-3">
-            <div className="flex flex-wrap items-end gap-6">
+            <div className="flex items-end gap-6">
               <div className="flex flex-col gap-2">
                 <Label className="text-base">Personas</Label>
                 <div className="flex items-center gap-2">
@@ -216,34 +216,35 @@ export function SessionSetup({ temas, niveles, paneles }: Props) {
               value={String(equipos)}
                   onValueChange={(v) => v && setEquipos(Number(v))}
                 >
-                  {[1, 2, 3, 4].map((n) => (
-                    <ToggleGroupItem key={n} value={String(n)} className={opcion} disabled={n > personas.length}>
-                      {n === 1 ? "Todo el grupo" : n}
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <ToggleGroupItem
+                      key={n}
+                      value={String(n)}
+                      aria-label={n === 1 ? "Sin equipos" : `${n} equipos`}
+                      className={cn(opcion, "min-w-12 px-3")}
+                      disabled={n > personas.length}
+                    >
+                      {n === 1 ? "No" : n}
                     </ToggleGroupItem>
                   ))}
                 </ToggleGroup>
               </div>
             </div>
-            {/* Reparto: una columna por equipo, con todos los nombres visibles (sin cortes) */}
-            <div
-              className="grid min-h-0 flex-1 gap-2"
-              style={{ gridTemplateColumns: `repeat(${repartos.length}, minmax(0, 1fr))` }}
-            >
+            {/* Reparto: una fila por equipo con todos los nombres seguidos; aprovecha el ancho y nunca corta nombres */}
+            <div className="flex min-h-0 flex-1 flex-col justify-center gap-1.5 rounded-md border bg-background/60 px-3 py-2">
               {repartos.map((e, i) => (
-                <div key={e.numero} className="h-full rounded-md border bg-background/60 px-3 py-2">
-                  <p className="mb-1 flex items-center gap-2 text-sm font-semibold">
+                <p
+                  key={e.numero}
+                  className={cn("leading-snug", personas.length > 16 ? "text-xs" : "text-sm")}
+                >
+                  <span className="mr-2 inline-flex items-center gap-1.5 font-semibold">
                     <span className="size-3 shrink-0 rounded-full" style={{ background: COLOR_EQUIPO[i] }} />
                     {repartos.length > 1 ? e.nombre : "Grupo"}
-                  </p>
-                  {/* nombres en rejilla compacta: con 20 personas sigue cabiendo sin estirar la tarjeta */}
-                  <ul className="grid grid-cols-[repeat(auto-fill,minmax(6.5rem,1fr))] gap-x-2 text-sm leading-snug">
-                    {e.miembros.map((m) => (
-                      <li key={m} className="break-words">
-                        {nombrePersona(personas, m)}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                  </span>
+                  <span className="text-muted-foreground">
+                    {e.miembros.map((m) => nombrePersona(personas, m)).join(" · ")}
+                  </span>
+                </p>
               ))}
             </div>
           </CardContent>

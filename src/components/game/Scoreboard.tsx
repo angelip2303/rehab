@@ -9,13 +9,30 @@ export function Scoreboard({ equipos, puntos }: { equipos: Equipo[]; puntos: num
   return (
     <div className="flex gap-2">
       {equipos.map((e, i) => (
-        <PuntosEquipo key={e.numero} nombre={equipos.length > 1 ? e.nombre : "Grupo"} color={COLOR_EQUIPO[i]} puntos={puntos[i]} />
+        <PuntosEquipo
+          key={e.numero}
+          nombre={equipos.length > 1 ? e.nombre : "Grupo"}
+          color={COLOR_EQUIPO[i]}
+          puntos={puntos[i]}
+          compacto={equipos.length >= 4}
+        />
       ))}
     </div>
   );
 }
 
-function PuntosEquipo({ nombre, color, puntos }: { nombre: string; color: string; puntos: number }) {
+/** Con 4 o 5 equipos solo se muestra el color y los puntos, para que la cabecera quepa en una línea. */
+function PuntosEquipo({
+  nombre,
+  color,
+  puntos,
+  compacto,
+}: {
+  nombre: string;
+  color: string;
+  puntos: number;
+  compacto: boolean;
+}) {
   const anterior = useRef(puntos);
   const [salto, setSalto] = useState(0);
 
@@ -28,10 +45,11 @@ function PuntosEquipo({ nombre, color, puntos }: { nombre: string; color: string
     <Badge
       key={salto}
       variant="secondary"
+      aria-label={`${nombre}: ${puntos} ${puntos === 1 ? "punto" : "puntos"}`}
       className={cn("gap-2 border-2 px-3 py-1 text-lg", salto > 0 && "animate-puntos")}
     >
       <span className="size-4 rounded-full" style={{ background: color }} />
-      {nombre}
+      {!compacto && nombre}
       <span className="font-bold tabular-nums">{puntos}</span>
     </Badge>
   );

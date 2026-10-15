@@ -4,7 +4,7 @@ Guía técnica. Para editar el contenido del juego, ver el [README](README.md).
 
 ## Qué es
 
-Juego cooperativo tipo *La ruleta de la suerte* para sesiones de grupo (hasta 20 personas) en una
+Juego cooperativo tipo *La ruleta de la suerte* para sesiones de grupo (hasta 25 personas y 5 equipos) en una
 pizarra interactiva (lápiz y pantalla táctil, sin teclado). Niveles Fácil / Moderado / Difícil al estilo
 NeuronUP; dentro de cada nivel los paneles se juegan de la frase más corta a la más larga.
 

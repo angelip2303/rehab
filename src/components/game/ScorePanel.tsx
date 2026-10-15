@@ -15,7 +15,7 @@ export function ScorePanel({ estado, turno }: { estado: Estado; turno: Turno }) 
   const conEquipos = estado.equipos.length > 1;
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2" aria-label="Marcador">
+    <div className={cn("grid gap-4 sm:grid-cols-2", estado.equipos.length > 2 && "lg:grid-cols-3")} aria-label="Marcador">
       {estado.equipos.map((e, i) => (
         <Card key={e.numero} className="gap-2 py-3">
           <CardHeader className="px-4">
