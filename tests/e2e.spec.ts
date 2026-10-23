@@ -119,7 +119,7 @@ for (const viewport of [{ width: 1366, height: 768 }, { width: 1280, height: 720
     await page.goto("./");
     for (let i = 0; i < 20; i++) await page.getByRole("button", { name: "Una persona más" }).click();
     await expect(page.getByRole("button", { name: "Una persona más" })).toBeEnabled();
-    await expect(page.getByText("25", { exact: true })).toBeVisible();
+    await expect(page.getByLabel("25 personas", { exact: true })).toBeVisible();
     await expect(page.getByRole("button", { name: "Una persona más" })).toBeEnabled();
     // las tarjetas de la configuración no se estiran al añadir personas
     const altoGrupo = () => page.locator("[data-slot=card]", { hasText: "Grupo" }).first().evaluate((el) => el.getBoundingClientRect().height);
@@ -134,7 +134,7 @@ for (const viewport of [{ width: 1366, height: 768 }, { width: 1280, height: 720
     for (const equipos of ["5 equipos", "4 equipos", "3 equipos", "Sin equipos"]) {
       await page.getByRole("radiogroup", { name: "Equipos" }).getByRole("radio", { name: equipos, exact: true }).click();
       await sinScroll(page);
-      await expect(page.getByText("Persona 25")).toBeInViewport();
+      await expect(page.getByLabel("Persona 25", { exact: true })).toBeInViewport();
     }
     await page.getByRole("radiogroup", { name: "Paneles de la misión" }).getByRole("radio", { name: "4", exact: true }).click();
     // En Concurso, el texto de la misión ocupa como mucho dos líneas

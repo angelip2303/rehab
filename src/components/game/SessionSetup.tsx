@@ -13,7 +13,7 @@ import { COLOR_EQUIPO } from "@/components/game/colores";
 import { cn } from "@/lib/utils";
 import { borrarPartida } from "@/lib/partida";
 import { cargarSesion, guardarSesion, type Sesion } from "@/lib/session";
-import { crearEquipos, nombrePersona } from "@/lib/turns";
+import { crearEquipos, nombrePersona, type Equipo } from "@/lib/turns";
 import type { Modo, Nivel, NivelId, Panel, Tema } from "@/lib/types";
 
 const MIN_PERSONAS = 2;
@@ -156,7 +156,7 @@ export function SessionSetup({ temas, niveles, paneles }: Props) {
                   <ToggleGroupItem
                     value={t.id}
                     aria-label={t.nombre}
-                    className="relative h-auto w-full flex-col gap-1 border-2 px-3 py-3 text-lg whitespace-normal data-[state=on]:border-primary data-[state=on]:bg-primary/15 data-[state=on]:text-foreground data-[state=on]:hover:bg-primary/20"
+                    className="relative h-full w-full flex-col justify-start gap-1 border-2 px-3 py-3 text-lg whitespace-normal data-[state=on]:border-primary data-[state=on]:bg-primary/15 data-[state=on]:text-foreground data-[state=on]:hover:bg-primary/20"
                   >
                     {elegido && (
                       <span className="absolute top-2 right-2 flex size-6 items-center justify-center rounded-full bg-primary text-primary-foreground">
@@ -166,7 +166,10 @@ export function SessionSetup({ temas, niveles, paneles }: Props) {
                     <span className="text-4xl leading-none" aria-hidden>
                       {t.icono ?? "🗂️"}
                     </span>
-                    <span className="font-semibold">{t.nombre}</span>
+                    {/* el nombre puede ocupar dos líneas; se reserva el hueco para que todas las tarjetas midan igual */}
+                    <span className="flex min-h-[2lh] items-center text-base leading-tight font-semibold text-balance">
+                      {t.nombre}
+                    </span>
                     <span className="text-sm text-muted-foreground">
                       {t.paneles[nivel]} {t.paneles[nivel] === 1 ? "panel" : "paneles"}
                     </span>
@@ -200,7 +203,9 @@ export function SessionSetup({ temas, niveles, paneles }: Props) {
                   <Button variant="outline" className="size-14" onClick={() => cambiarPersonas(-1)} aria-label="Una persona menos">
                     <MinusIcon className="size-6" />
                   </Button>
-                  <span className="w-14 text-center text-3xl font-semibold tabular-nums">{personas.length}</span>
+                  <span className="w-14 text-center text-3xl font-semibold tabular-nums" aria-label={`${personas.length} personas`}>
+                    {personas.length}
+                  </span>
                   <Button variant="outline" className="size-14" onClick={() => cambiarPersonas(1)} aria-label="Una persona más">
                     <PlusIcon className="size-6" />
                   </Button>
@@ -230,23 +235,7 @@ export function SessionSetup({ temas, niveles, paneles }: Props) {
                 </ToggleGroup>
               </div>
             </div>
-            {/* Reparto: una fila por equipo con todos los nombres seguidos; aprovecha el ancho y nunca corta nombres */}
-            <div className="flex min-h-0 flex-1 flex-col justify-center gap-1.5 rounded-md border bg-background/60 px-3 py-2">
-              {repartos.map((e, i) => (
-                <p
-                  key={e.numero}
-                  className={cn("leading-snug", personas.length > 16 ? "text-xs" : "text-sm")}
-                >
-                  <span className="mr-2 inline-flex items-center gap-1.5 font-semibold">
-                    <span className="size-3 shrink-0 rounded-full" style={{ background: COLOR_EQUIPO[i] }} />
-                    {repartos.length > 1 ? e.nombre : "Grupo"}
-                  </span>
-                  <span className="text-muted-foreground">
-                    {e.miembros.map((m) => nombrePersona(personas, m)).join(" · ")}
-                  </span>
-                </p>
-              ))}
-            </div>
+            <Reparto equipos={repartos} personas={personas} />
           </CardContent>
         </Card>
 
@@ -305,15 +294,15 @@ export function SessionSetup({ temas, niveles, paneles }: Props) {
               </ToggleGroup>
             </div>
 
-            <div className="mt-auto flex items-center gap-3 rounded-lg border-2 border-primary/40 bg-primary/10 px-4 py-3">
+            <div className="mt-auto flex items-center gap-3 rounded-lg border-2 border-primary/40 bg-primary/10 px-4 py-2.5">
               <TargetIcon className="size-8 shrink-0 text-primary" />
-              <p className="text-lg" data-testid="mision">
+              <p className="text-lg leading-snug" data-testid="mision">
                 {disponibles === 0 ? (
                   "No hay paneles de este nivel en las temáticas elegidas."
                 ) : (
                   <>
                     <strong>Misión:</strong> resolver {totalMision} {totalMision === 1 ? "panel" : "paneles"} entre todo el
-                    grupo{modo === "concurso" ? ", sumando puntos por equipo" : ""}.
+                    grupo.
                   </>
                 )}
               </p>
@@ -391,5 +380,75 @@ function NombresDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+/** Iniciales de un nombre propio, o el número de la persona si no tiene nombre. */
+function distintivo(nombres: string[], indice: number): string {
+  const nombre = nombres[indice]?.trim();
+  if (!nombre) return String(indice + 1);
+  const partes = nombre.split(/\s+/);
+  return (partes.length > 1 ? partes[0][0] + partes[1][0] : nombre.slice(0, 2)).toLocaleUpperCase("es-ES");
+}
+
+const FILAS_REPARTO = 5;
+
+/**
+ * Reparto visual de los equipos: una columna por equipo con una cabecera de su color y cada
+ * persona como un círculo con su número (o iniciales) y su nombre. Con muchas personas por
+ * columna se reparten en subcolumnas; si no hay sitio para los nombres, solo se ven los círculos
+ * (el nombre completo queda en la etiqueta accesible y en el aviso al pasar el lápiz).
+ */
+function Reparto({ equipos, personas }: { equipos: Equipo[]; personas: string[] }) {
+  const subcolumnas = equipos.map((e) => Math.max(1, Math.ceil(e.miembros.length / FILAS_REPARTO)));
+  const conNombres = subcolumnas.reduce((a, b) => a + b, 0) <= 4;
+
+  return (
+    <div
+      className="grid min-h-0 flex-1 gap-2"
+      style={{ gridTemplateColumns: subcolumnas.map((n) => `${n}fr`).join(" ") }}
+    >
+      {equipos.map((e, i) => (
+        <div
+          key={e.numero}
+          className="flex min-w-0 flex-col rounded-lg border-2"
+          style={{ borderColor: COLOR_EQUIPO[i] }}
+        >
+          <p
+            className="flex items-center justify-between gap-2 rounded-t-md px-2 py-1 text-sm font-semibold text-nord0"
+            style={{ background: `color-mix(in oklab, ${COLOR_EQUIPO[i]} 45%, transparent)` }}
+          >
+            <span>{equipos.length > 1 ? e.nombre : "Grupo"}</span>
+            <span className="tabular-nums">{e.miembros.length}</span>
+          </p>
+          {/* con nombres: rejilla de filas; solo círculos: se colocan en filas que aprovechan el ancho */}
+          <ul
+            className={cn(
+              "flex-1 gap-x-2 gap-y-0.5 p-1.5",
+              conNombres ? "grid content-start" : "flex flex-wrap content-center justify-center gap-1",
+            )}
+            style={conNombres ? { gridTemplateColumns: `repeat(${subcolumnas[i]}, minmax(0, 1fr))` } : undefined}
+          >
+            {e.miembros.map((m) => (
+              <li
+                key={m}
+                aria-label={nombrePersona(personas, m)}
+                title={nombrePersona(personas, m)}
+                className={cn("flex min-w-0 items-center gap-1.5", !conNombres && "justify-center")}
+              >
+                <span
+                  className="flex size-6 shrink-0 items-center justify-center rounded-full text-xs leading-none font-bold text-nord0"
+                  style={{ background: `color-mix(in oklab, ${COLOR_EQUIPO[i]} 70%, white)` }}
+                  aria-hidden
+                >
+                  {distintivo(personas, m)}
+                </span>
+                {conNombres && <span className="text-sm leading-tight break-words">{nombrePersona(personas, m)}</span>}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
   );
 }
